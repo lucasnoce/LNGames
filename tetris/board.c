@@ -59,9 +59,41 @@ static board_region_t board[BOARD_ROW_SIZE][BOARD_COL_SIZE] = { 0 };
  * Static Function Prototypes
  */
 
+/*!
+  @brief        Clears a portion of the board, specified by the BOARD_AREA_T parameter.
+
+  @param[in]    p_area: pointer to the area to be cleared.
+
+  @returns      void
+*/
 static void _clear_board_area( BOARD_AREA_T *p_area );
+
+/*!
+  @brief        Clears the entire board, populating the matrix with zeros.
+
+  @returns      void
+*/
 static void _clear_board_entirely( void );
+
+/*!
+  @brief        Check if the piece will collide with another piece or the border after it is moved.
+
+  @param[in]    direction: which direction to move the piece (from BOARD_DIRECTIONS_E).
+  @param[in]    p_piece: pointer to the piece to be moved.
+
+  @returns      Either BOARD_PIECE_COLLISION or BOARD_PIECE_NO_COLLISION.
+*/
 static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece );
+
+/*!
+  @brief        Move the piece across the board by adding the piece's valid values to the
+                corresponding board values at the next position.
+                
+  @param[in]    direction: which direction to move the piece (from BOARD_DIRECTIONS_E).
+  @param[in]    p_piece: pointer to the piece to be moved.
+
+  @returns      void
+*/
 static void _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece );
 
 
@@ -110,7 +142,7 @@ void add_new_piece_to_board( PIECE_STRUCT_T *p_piece ){
 
   for( uint8_t j=0; j<p_piece->order; j++ ){
     piece_idx  = piece_row + j;
-    board[0][start_col + j] = p_piece->format[piece_idx];
+    board[0][start_col + j] = p_piece->shape[piece_idx];
   }
 }
 
@@ -139,6 +171,7 @@ uint8_t move_piece_through_board( uint8_t direction, PIECE_STRUCT_T *p_piece ){
 /* ==========================================================================================================
  * Static Functions Declaration
  */
+
 
 static void _clear_board_area( BOARD_AREA_T *p_area ){
   for( uint8_t i=p_area->start_row; i<p_area->end_row; i++ ){
@@ -172,7 +205,7 @@ static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece )
         offset_col = p_piece->position_col + j;
         piece_idx  = piece_row + j;
         
-        if( board[offset_row][offset_col] + p_piece->format[piece_idx] > 1 ){
+        if( board[offset_row][offset_col] + p_piece->shape[piece_idx] > 1 ){
           // hit
           printf( "*** piece hit something ***\n" );
           return BOARD_PIECE_COLLISION;
@@ -190,11 +223,11 @@ static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece )
 
       for( uint8_t i=piece_start_row; i<p_piece->order; i++ ){
         piece_idx  = ( p_piece->order * i ) + piece_col;
-        uint8_t collision_result = board[offset_row][offset_col] + p_piece->format[piece_idx];
+        uint8_t collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
         
         // printf( "%u + %u = %u\n",
         //   board[offset_row][offset_col],
-        //   p_piece->format[piece_idx],
+        //   p_piece->shape[piece_idx],
         //   collision_result );
 
         /* 
@@ -224,11 +257,11 @@ static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece )
 
       for( uint8_t i=piece_start_row; i<p_piece->order; i++ ){
         piece_idx  = ( p_piece->order * i ) + piece_col;
-        uint8_t collision_result = board[offset_row][offset_col] + p_piece->format[piece_idx];
+        uint8_t collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
         
         printf( "%u + %u = %u\n",
           board[offset_row][offset_col],
-          p_piece->format[piece_idx],
+          p_piece->shape[piece_idx],
           collision_result );
 
         /* 
@@ -283,7 +316,7 @@ static void _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece ){
         for( uint8_t j=0; j<p_piece->order; j++ ){
           offset_col = p_piece->position_col + j;
           piece_idx  = (p_piece->order * i) + j;
-          board[offset_row][offset_col] += p_piece->format[piece_idx];
+          board[offset_row][offset_col] += p_piece->shape[piece_idx];
         }
         offset_row++;
       }
@@ -307,7 +340,7 @@ static void _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece ){
         for( uint8_t j=0; j<p_piece->order; j++ ){
           offset_col = p_piece->position_col + j + horizontal_direction;
           piece_idx  = (p_piece->order * i) + j;
-          board[offset_row][offset_col] += p_piece->format[piece_idx];
+          board[offset_row][offset_col] += p_piece->shape[piece_idx];
         }
         offset_row++;
       }

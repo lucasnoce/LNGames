@@ -19,23 +19,40 @@ int main( void ){
 
   PIECE_STRUCT_T piece = { 0 };
 
-  piece_get( PIECE_TYPE_Z, &piece );
+  piece_get( PIECE_SHAPE_Z, &piece );
   
   // printf( "original:\n" );
-  // piece_print( &piece );
-  add_new_piece_to_board( &piece );
+  piece_print( &piece );
+  printf( "\n" );
+  piece_rotate_90deg( &piece );
+  piece_print( &piece );
+  printf( "\n" );
+  
+  piece_get( PIECE_SHAPE_Z, &piece );
+  piece_print( &piece );
+  
+  // add_new_piece_to_board( &piece );
 
   // printf( "\n" );
-  board_print();
-  printf( "\n\n" );
+  // board_print();
+  // printf( "\n\n" );
 
-  for( uint8_t i=0; i<6; i++ ){
-      // board_print();
-    if( move_piece_through_board( BOARD_DIRECTION_LEFT, &piece ) != TETRIS_RET_ERR ){
-      board_print();
-      printf( "\n\n" );
-    }
-  }
+  // for( uint8_t i=0; i<6; i++ ){
+  //     // board_print();
+  //   if( move_piece_through_board( BOARD_DIRECTION_LEFT, &piece ) != TETRIS_RET_ERR ){
+  //     board_print();
+  //     printf( "\n\n" );
+  //   }
+  // }
 
   return 0;
 }
+
+
+/*!
+  @brief        
+  @param[in]    
+  @param[out]   
+  @returns      
+  @note         
+*/
