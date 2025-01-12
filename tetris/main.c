@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "main.h"
 #include "pieces.h"
 #include "board.h"
 
@@ -18,19 +19,21 @@ int main( void ){
 
   PIECE_STRUCT_T piece = { 0 };
 
-  piece_get( PIECE_TYPE_L, &piece );
+  piece_get( PIECE_TYPE_Z, &piece );
   
-  printf( "original:\n" );
-  piece_print( &piece );
+  // printf( "original:\n" );
+  // piece_print( &piece );
   add_new_piece_to_board( &piece );
 
-  printf( "\n\n" );
+  // printf( "\n" );
   board_print();
+  printf( "\n\n" );
 
-  for( uint8_t i=0; i<10; i++ ){
-    if( move_piece_through_board( BOARD_DIRECTION_RIGHT, &piece ) != PIECE_RET_ERR ){
-      printf( "\n\n" );
+  for( uint8_t i=0; i<6; i++ ){
+      // board_print();
+    if( move_piece_through_board( BOARD_DIRECTION_LEFT, &piece ) != TETRIS_RET_ERR ){
       board_print();
+      printf( "\n\n" );
     }
   }
 

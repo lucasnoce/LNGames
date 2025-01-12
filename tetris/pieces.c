@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "main.h"
 #include "pieces.h"
 
 
@@ -157,10 +158,10 @@ uint8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece ){
 
     case PIECE_TYPE_LAST_IDX:
     default:
-      return PIECE_RET_ERR;
+      return TETRIS_RET_ERR;
   }
 
-  return PIECE_RET_OK;
+  return TETRIS_RET_OK;
 }
 
 void piece_rotate_90deg( PIECE_STRUCT_T *p_piece ){
