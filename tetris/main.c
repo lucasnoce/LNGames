@@ -22,28 +22,25 @@ int main( void ){
   piece_get( PIECE_SHAPE_Z, &piece );
   
   // printf( "original:\n" );
-  piece_print( &piece );
-  printf( "\n" );
-  piece_rotate_90deg( &piece );
-  piece_print( &piece );
-  printf( "\n" );
-  
-  piece_get( PIECE_SHAPE_Z, &piece );
-  piece_print( &piece );
-  
-  // add_new_piece_to_board( &piece );
-
+  // piece_print( &piece );
   // printf( "\n" );
-  // board_print();
-  // printf( "\n\n" );
+  
+  add_new_piece_to_board( &piece );
 
-  // for( uint8_t i=0; i<6; i++ ){
-  //     // board_print();
-  //   if( move_piece_through_board( BOARD_DIRECTION_LEFT, &piece ) != TETRIS_RET_ERR ){
-  //     board_print();
-  //     printf( "\n\n" );
-  //   }
-  // }
+  printf( "\n" );
+  board_print();
+  printf( "\n\n" );
+
+  for( uint8_t i=0; i<6; i++ ){
+      // board_print();
+    if( move_piece_through_board( BOARD_DIRECTION_LEFT, &piece ) != TETRIS_RET_ERR ){
+      board_print();
+      printf( "\n\n" );
+    }
+    else{
+      printf( "errooo\n" );
+    }
+  }
 
   return 0;
 }

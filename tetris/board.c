@@ -23,16 +23,26 @@
  * Definitions
  */
 
-#define BOARD_ROW_SIZE            20
-#define BOARD_COL_SIZE            12
+#define BOARD_PLAYABLE_ROW_SIZE   15
+#define BOARD_PLAYABLE_COL_SIZE   12
+
+#define BOARD_PLAYABLE_OFFSET     PIECE_LARGEST_MATRIX_ORDER
+#define BOARD_PLAYABLE_START_ROW  BOARD_PLAYABLE_OFFSET
+#define BOARD_PLAYABLE_START_COL  BOARD_PLAYABLE_OFFSET
+#define BOARD_PLAYABLE_END_ROW    BOARD_PLAYABLE_OFFSET + BOARD_PLAYABLE_ROW_SIZE
+#define BOARD_PLAYABLE_END_COL    BOARD_PLAYABLE_OFFSET + BOARD_PLAYABLE_COL_SIZE
+
+#define BOARD_ROW_SIZE            ( BOARD_PLAYABLE_COL_SIZE + ( 2 * BOARD_PLAYABLE_OFFSET ) )
+#define BOARD_COL_SIZE            ( BOARD_PLAYABLE_COL_SIZE + ( 2 * BOARD_PLAYABLE_OFFSET ) )
+
 #define BOARD_REGION_CENTER_COL   6
 #define BOARD_REGION_BORDER_VALUE 3
 
-#define BOARD_H_DISPLACEMENT_RIGHT  ( (int8_t) 1 )
+#define BOARD_H_DISPLACEMENT_RIGHT  ( (int8_t)  1 )
 #define BOARD_H_DISPLACEMENT_LEFT   ( (int8_t) -1 )
 
-#define BOARD_PIECE_COLLISION     true
-#define BOARD_PIECE_NO_COLLISION  false
+// #define BOARD_PIECE_COLLISION     true
+// #define BOARD_PIECE_NO_COLLISION  false
 
 
 /* ==========================================================================================================
@@ -81,9 +91,9 @@ static void _clear_board_entirely( void );
   @param[in]    direction: which direction to move the piece (from BOARD_DIRECTIONS_E).
   @param[in]    p_piece: pointer to the piece to be moved.
 
-  @returns      Either BOARD_PIECE_COLLISION or BOARD_PIECE_NO_COLLISION.
+  @returns      Which direction to move the piece (from BOARD_DIRECTIONS_E).
 */
-static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece );
+static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece );
 
 /*!
   @brief        Move the piece across the board by adding the piece's valid values to the
@@ -94,7 +104,7 @@ static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece )
 
   @returns      void
 */
-static void _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece );
+static uint8_t _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece );
 
 
 /* ==========================================================================================================
@@ -139,6 +149,7 @@ void add_new_piece_to_board( PIECE_STRUCT_T *p_piece ){
   p_piece->position_col   = start_col;
   p_piece->position_row   = 0;
   p_piece->displayed_rows = 1;
+  p_piece->displayed_cols = p_piece->order;
 
   for( uint8_t j=0; j<p_piece->order; j++ ){
     piece_idx  = piece_row + j;
@@ -149,7 +160,7 @@ void add_new_piece_to_board( PIECE_STRUCT_T *p_piece ){
 
 uint8_t move_piece_through_board( uint8_t direction, PIECE_STRUCT_T *p_piece ){
   /*! TODO: debug this section of checking the hits */
-  if( _check_piece_collision( direction, p_piece ) != BOARD_PIECE_NO_COLLISION ){
+  if( _check_piece_collision( direction, p_piece ) != BOARD_NO_COLLISION ){
     return TETRIS_RET_ERR;
   }
 
@@ -162,9 +173,9 @@ uint8_t move_piece_through_board( uint8_t direction, PIECE_STRUCT_T *p_piece ){
   _clear_board_area( &area );
 
   /* Move the piece */
-  _move_piece( direction, p_piece );
+  return _move_piece( direction, p_piece );
 
-  return TETRIS_RET_OK;
+  // return TETRIS_RET_OK;
 }
 
 
@@ -189,7 +200,7 @@ static void _clear_board_entirely( void ){
 }
 
 
-static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece ){
+static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece ){
   uint8_t offset_row = 0;
   uint8_t offset_col = 0;
   uint8_t piece_idx  = 0;
@@ -198,24 +209,81 @@ static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece )
   switch( direction ){
     case BOARD_DIRECTION_DOWN:
     {
+      if( ( p_piece->position_row + p_piece->order ) >= ( BOARD_ROW_SIZE - 1 ) ){
+        printf( "*** piece hit bottom border ***\n" );
+        return BOARD_COLLISION_BORDER_BOTTOM;
+      }
+
       uint8_t piece_row = p_piece->order * ( p_piece->order - 1 );
       offset_row = p_piece->position_row + p_piece->displayed_rows + 1;
       
       for( uint8_t j=0; j<p_piece->order; j++ ){
         offset_col = p_piece->position_col + j;
         piece_idx  = piece_row + j;
+
+        uint8_t collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
         
-        if( board[offset_row][offset_col] + p_piece->shape[piece_idx] > 1 ){
-          // hit
-          printf( "*** piece hit something ***\n" );
-          return BOARD_PIECE_COLLISION;
+        // if( board[offset_row][offset_col] + p_piece->shape[piece_idx] > 1 ){
+        //   // hit
+        //   printf( "*** piece hit something ***\n" );
+        //   return BOARD_PIECE_COLLISION;
+        // }
+        if( collision_result == 2 ){
+          printf( "*** piece hit other piece ***\n" );
+          return BOARD_COLLISION_OBJECT_BOTTOM;
+        }
+        else if( collision_result > 3 ){
+          printf( "*** piece hit border ***\n" );
+          return BOARD_COLLISION_BORDER_BOTTOM;
         }
       }
       break;
     }
 
+    case BOARD_DIRECTION_LEFT:
+    {
+      uint8_t piece_col = 0;
+      uint8_t piece_first_visible_row = p_piece->order - p_piece->displayed_rows;
+      offset_row = p_piece->position_row;
+
+      // offset_col = p_piece->position_col - 1;
+      offset_col = p_piece->position_col <= 1 ? 0 : ( p_piece->position_col - 1 );
+
+      for( uint8_t i=(p_piece->order - 1); i>=piece_first_visible_row; i-- ){
+        piece_idx  = ( p_piece->order * i ) + piece_col;
+        uint8_t collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
+        
+        printf( "%u + %u = %u\n",
+          board[offset_row][offset_col],
+          p_piece->shape[piece_idx],
+          collision_result );
+
+        /* 
+          if collision_result == 3, then it's just an empty portion
+          of the piece touching the border.
+        */
+        if( collision_result == 2 ){
+          printf( "*** piece hit other piece ***\n" );
+          return BOARD_COLLISION_OBJECT_LEFT;
+        }
+        else if( collision_result > 3 ){
+          printf( "*** piece hit border ***\n" );
+          return BOARD_COLLISION_BORDER_LEFT;
+        }
+        
+        offset_row++;
+      }
+
+      break;
+    }
+
     case BOARD_DIRECTION_RIGHT:
     {
+      if( ( p_piece->position_col + p_piece->order ) >= ( BOARD_COL_SIZE - 1 ) ){
+        printf( "*** piece hit right-side border ***\n" );
+        return BOARD_COLLISION_BORDER_RIGHT;
+      }
+
       uint8_t piece_col = p_piece->order - 1;
       uint8_t piece_start_row = p_piece->order - p_piece->displayed_rows;
       offset_col = p_piece->position_col + p_piece->order;
@@ -236,63 +304,28 @@ static bool _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piece )
         */
         if( collision_result == 2 ){
           printf( "*** piece hit other piece ***\n" );
-          return BOARD_PIECE_COLLISION;
+          return BOARD_COLLISION_OBJECT_RIGHT;
         }
         else if( collision_result > 3 ){
           printf( "*** piece hit border ***\n" );
-          return BOARD_PIECE_COLLISION;
+          return BOARD_COLLISION_BORDER_RIGHT;
         }
         
         offset_row++;
       }
-      break;
-    }
-
-    case BOARD_DIRECTION_LEFT:
-    {
-      uint8_t piece_col = 0;
-      uint8_t piece_start_row = p_piece->order - p_piece->displayed_rows;
-      offset_col = p_piece->position_col - 1;
-      offset_row = p_piece->position_row;
-
-      for( uint8_t i=piece_start_row; i<p_piece->order; i++ ){
-        piece_idx  = ( p_piece->order * i ) + piece_col;
-        uint8_t collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
-        
-        printf( "%u + %u = %u\n",
-          board[offset_row][offset_col],
-          p_piece->shape[piece_idx],
-          collision_result );
-
-        /* 
-          if collision_result == 3, then it's just an empty portion
-          of the piece touching the border.
-        */
-        if( collision_result == 2 ){
-          printf( "*** piece hit other piece ***\n" );
-          return BOARD_PIECE_COLLISION;
-        }
-        else if( collision_result > 3 ){
-          printf( "*** piece hit border ***\n" );
-          return BOARD_PIECE_COLLISION;
-        }
-        
-        offset_row++;
-      }
-
       break;
     }
 
     case BOARD_DIRECTION_LAST_IDX:
     default:
-      return BOARD_PIECE_COLLISION;
+      return BOARD_COLLISION_UNIDENTIFIED;
   }
 
-  return BOARD_PIECE_NO_COLLISION;
+  return BOARD_NO_COLLISION;
 }
 
 
-static void _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece ){
+static uint8_t _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece ){
   int8_t horizontal_direction = BOARD_H_DISPLACEMENT_RIGHT;
   uint8_t offset_row          = 0;
   uint8_t offset_col          = 0;
@@ -332,14 +365,24 @@ static void _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece ){
 
     case BOARD_DIRECTION_RIGHT:
     {
-      uint8_t piece_start_row = 0;
+      // if( (int8_t) p_piece->position_col + horizontal_direction <= 0 ||
+      //              p_piece->position_col + horizontal_direction >= ( BOARD_COL_SIZE - 1 ) ){
+      //   printf( "aaaaaaaaa\n" );
+      //   return TETRIS_RET_ERR;  // error
+      // }
+
+      uint8_t piece_start_row = p_piece->order - p_piece->displayed_rows;
+      // uint8_t piece_start_col;
+
+      // if( p_piece->displayed_cols != p_piece->order ){
+      //   piece_start_col = 
+      // }
       offset_row = p_piece->position_row;
-      piece_start_row = p_piece->order - p_piece->displayed_rows;
 
       for( uint8_t i=piece_start_row; i<p_piece->order; i++ ){
-        for( uint8_t j=0; j<p_piece->order; j++ ){
+        for( uint8_t j=0; j<p_piece->displayed_cols; j++ ){
           offset_col = p_piece->position_col + j + horizontal_direction;
-          piece_idx  = (p_piece->order * i) + j;
+          piece_idx  = ( p_piece->order * i ) + j;
           board[offset_row][offset_col] += p_piece->shape[piece_idx];
         }
         offset_row++;
@@ -351,6 +394,8 @@ static void _move_piece( uint8_t direction, PIECE_STRUCT_T *p_piece ){
 
     case BOARD_DIRECTION_LAST_IDX:
     default:
-      return;
+      return TETRIS_RET_ERR;
   }
+
+  return TETRIS_RET_OK;
 }

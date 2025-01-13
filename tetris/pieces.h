@@ -94,6 +94,7 @@ typedef struct PIECE_STRUCT_TAG{
   uint8_t position_row;
   uint8_t position_col;
   uint8_t displayed_rows;
+  uint8_t displayed_cols;
   piece_shape_t shape[PIECE_LARGEST_SIZE];
 } PIECE_STRUCT_T;
 

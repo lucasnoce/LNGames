@@ -35,6 +35,21 @@ typedef enum{
 } BOARD_DIRECTIONS_E;
 
 /*!
+  @brief        Indicates the possible collision events of a piece in the board.
+*/
+typedef enum{
+  BOARD_NO_COLLISION = 0,
+  BOARD_COLLISION_BORDER_BOTTOM,
+  BOARD_COLLISION_BORDER_LEFT,
+  BOARD_COLLISION_BORDER_RIGHT,
+  BOARD_COLLISION_OBJECT_BOTTOM,
+  BOARD_COLLISION_OBJECT_LEFT,
+  BOARD_COLLISION_OBJECT_RIGHT,
+  BOARD_COLLISION_UNIDENTIFIED,
+  BOARD_COLLISION_LAST_IDX,
+} BOARD_COLLISIONS_E;
+
+/*!
   @brief        Wrapper type used to indicate the board matrix.
 */
 typedef uint8_t board_region_t;
