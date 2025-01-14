@@ -23,6 +23,16 @@
  * Definitions
  */
 
+/*
+  Board is a rectangle matrix of sizes BOARD_PLAYABLE_ROW_SIZE x BOARD_PLAYABLE_COL_SIZE with a U-shaped border, as follows:
+
+  3 0 0 ... 0 3
+  3 0 0 ... 0 3
+  3 0 0 ... 0 3
+  : : :     : :
+  3 0 0 ... 0 3
+  3 3 3 ... 3 3
+*/
 #define BOARD_PLAYABLE_ROW_SIZE   15
 #define BOARD_PLAYABLE_COL_SIZE   12
 
@@ -40,9 +50,6 @@
 
 #define BOARD_H_DISPLACEMENT_RIGHT  ( (int8_t)  1 )
 #define BOARD_H_DISPLACEMENT_LEFT   ( (int8_t) -1 )
-
-// #define BOARD_PIECE_COLLISION     true
-// #define BOARD_PIECE_NO_COLLISION  false
 
 
 /* ==========================================================================================================
@@ -212,6 +219,9 @@ static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piec
       if( ( p_piece->position_row + p_piece->order ) >= ( BOARD_ROW_SIZE - 1 ) ){
         printf( "*** piece hit bottom border ***\n" );
         return BOARD_COLLISION_BORDER_BOTTOM;
+      }
+      else if( p_piece->displayed_rows == p_piece->order ){  //
+
       }
 
       uint8_t piece_row = p_piece->order * ( p_piece->order - 1 );
