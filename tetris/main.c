@@ -13,7 +13,7 @@
 #include "board.h"
 
 int main( void ){
-  printf( "board:\n" );
+  LOG_INF( "board:\n" );
   board_init();
   // board_print();
 
@@ -21,24 +21,24 @@ int main( void ){
 
   piece_get( PIECE_SHAPE_Z, &piece );
   
-  // printf( "original:\n" );
+  // LOG_INF( "original:\n" );
   // piece_print( &piece );
-  // printf( "\n" );
+  // LOG_INF( "\n" );
   
   add_new_piece_to_board( &piece );
 
-  printf( "\n" );
+  LOG_INF( "\n" );
   board_print();
-  printf( "\n\n" );
+  LOG_INF( "\n\n" );
 
   for( uint8_t i=0; i<6; i++ ){
       // board_print();
     if( move_piece_through_board( BOARD_DIRECTION_LEFT, &piece ) != TETRIS_RET_ERR ){
       board_print();
-      printf( "\n\n" );
+      LOG_INF( "\n\n" );
     }
     else{
-      printf( "errooo\n" );
+      LOG_INF( "errooo\n" );
     }
   }
 

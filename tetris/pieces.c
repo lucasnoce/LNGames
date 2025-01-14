@@ -171,9 +171,9 @@ void piece_print( PIECE_STRUCT_T *p_piece ){
     for( uint8_t j=0; j<p_piece->order; j++ ){
       piece_idx = (p_piece->order * i) + j;
       if( j == ( p_piece->order - 1 ) )
-        printf( "%u\n", p_piece->shape[piece_idx] );
+        LOG_INF( "%u\n", p_piece->shape[piece_idx] );
       else
-        printf( "%u, ", p_piece->shape[piece_idx] );
+        LOG_INF( "%u, ", p_piece->shape[piece_idx] );
     }
   }
 }
