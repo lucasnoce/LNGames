@@ -215,17 +215,27 @@ void _piece_copy_shape( PIECE_STRUCT_T *dst, piece_shape_t *src, uint8_t size ){
 
 
 static inline bool _piece_is_segment_empty( PIECE_STRUCT_T *p_piece, uint8_t seg_idx, bool check_row ){
-  uint8_t piece_start_row = ( p_piece->order * seg_idx );
-  uint8_t piece_idx       = 0;
-  uint8_t i               = 0;
+  uint8_t piece_base_idx = ( p_piece->order * seg_idx );
+  uint8_t piece_idx      = 0;
+  uint8_t i              = 0;
+
+  if( check_row )
+    piece_base_idx = ( p_piece->order * seg_idx );
 
   while( i < p_piece->order ){
-    piece_idx = piece_start_row + i;
+    if( check_row ){
+      piece_idx = piece_base_idx + i;
+    }
+    else{
+      piece_idx = ( p_piece->order * i ) + seg_idx;
+    }
 
     if( p_piece->shape[piece_idx] == 1 ){
-      return true;
+      return false;
     }
 
     i++;
   }
+
+  return true;
 }

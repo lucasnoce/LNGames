@@ -172,7 +172,7 @@ void add_new_piece_to_board( PIECE_STRUCT_T *p_piece ){
       piece_idx = ( p_piece->order * i ) + j;
 
       if( p_piece->shape[piece_idx] == 1 ){
-        LOG_INF( "i: %u", i );
+        LOG_DBG( "i: %u", i );
         piece_start_row = i;
         flag_break = true;
         break;
@@ -252,29 +252,20 @@ static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piec
   switch( direction ){
     case BOARD_DIRECTION_DOWN:
     {
-      // if( ( p_piece->position_row + p_piece->order ) >= ( BOARD_ROW_SIZE - 1 ) ){
-      //   LOG_INF( "*** piece hit bottom border ***\n" );
-      //   return BOARD_COLLISION_BORDER_BOTTOM;
-      // }
+      uint8_t collision_result = 0;
 
-      uint8_t collision_result   = 0;
-      uint8_t piece_last_row_idx = 0;
-      offset_row = p_piece->position_row + p_piece->order + 1;
-      
-      for( uint8_t i=(p_piece->order-1); i>=0; i-- ){
-        piece_last_row_idx = p_piece->order * i;
-        offset_row--;
+      for( int8_t j=(p_piece->order-1); j>=0; j-- ){    // col
+        for( int8_t i=(p_piece->order-1); i>=0; i-- ){  // row
+          piece_idx = ( p_piece->order * i ) + j;
+          LOG_DBG( "p_piece->shape[%u][%u]: %u\n", i, j, p_piece->shape[piece_idx] );
 
-        if( !piece_is_row_empty( p_piece, piece_last_row_idx ) ){
-          for( uint8_t j=0; j<p_piece->order; j++ ){
+          if( p_piece->shape[piece_idx] == 1 ){  // this cell can hit something below
             offset_col = p_piece->position_col + j;
-            piece_idx  = piece_last_row_idx + j;
-            
-            if( offset_col <= 0 )
-              continue;
-            
+            offset_row = p_piece->position_row + i + 1;  // one row below
             collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
             
+            LOG_DBG( "board[%u][%u]: %u\n", offset_row, offset_col, board[offset_row][offset_col] );
+
             if( collision_result == 2 ){
               LOG_INF( "*** piece hit another piece ***\n" );
               return BOARD_COLLISION_OBJECT_BOTTOM;
@@ -283,9 +274,12 @@ static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piec
               LOG_INF( "*** piece hit bottom border ***\n" );
               return BOARD_COLLISION_BORDER_BOTTOM;
             }
+
+            break;
           }
         }
       }
+      
       break;
     }
 
