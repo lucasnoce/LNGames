@@ -33,7 +33,7 @@
   3 0 0 ... 0 3
   3 3 3 ... 3 3
 */
-#define BOARD_PLAYABLE_ROW_SIZE   15
+#define BOARD_PLAYABLE_ROW_SIZE   8
 #define BOARD_PLAYABLE_COL_SIZE   12
 
 #define BOARD_PLAYABLE_OFFSET     PIECE_LARGEST_MATRIX_ORDER
@@ -42,8 +42,10 @@
 #define BOARD_PLAYABLE_END_ROW    BOARD_PLAYABLE_OFFSET + BOARD_PLAYABLE_ROW_SIZE
 #define BOARD_PLAYABLE_END_COL    BOARD_PLAYABLE_OFFSET + BOARD_PLAYABLE_COL_SIZE
 
-#define BOARD_ROW_SIZE            ( BOARD_PLAYABLE_COL_SIZE + ( 2 * BOARD_PLAYABLE_OFFSET ) )
-#define BOARD_COL_SIZE            ( BOARD_PLAYABLE_COL_SIZE + ( 2 * BOARD_PLAYABLE_OFFSET ) )
+// #define BOARD_ROW_SIZE            ( BOARD_PLAYABLE_COL_SIZE + ( 2 * BOARD_PLAYABLE_OFFSET ) )
+// #define BOARD_COL_SIZE            ( BOARD_PLAYABLE_COL_SIZE + ( 2 * BOARD_PLAYABLE_OFFSET ) )
+#define BOARD_ROW_SIZE            BOARD_PLAYABLE_ROW_SIZE
+#define BOARD_COL_SIZE            BOARD_PLAYABLE_COL_SIZE
 
 #define BOARD_REGION_CENTER_COL   6
 #define BOARD_REGION_BORDER_VALUE 3
@@ -136,31 +138,65 @@ void board_init( void ){
 void board_print( void ){
   for( uint8_t i=0; i<BOARD_ROW_SIZE; i++ ){
     for( uint8_t j=0; j<BOARD_COL_SIZE; j++ ){
-      if( j == ( BOARD_COL_SIZE - 1 ) )
+      if( j == ( BOARD_COL_SIZE - 1 ) ){
         LOG_INF( "%u\n", board[i][j] );
-      else
+      }
+      else{
         if( board[i][j] != 0 )
           LOG_INF( "%u ", board[i][j] );
         else
           LOG_INF( "_|" );
+      }
     }
   }
 }
 
 
 void add_new_piece_to_board( PIECE_STRUCT_T *p_piece ){
-  uint8_t start_col = BOARD_REGION_CENTER_COL - ( p_piece->order / 2 );
-  uint8_t piece_row = p_piece->order * ( p_piece->order - 1 );
-  uint8_t piece_idx = 0;
+  uint8_t start_col       = BOARD_REGION_CENTER_COL - ( p_piece->order / 2 );
+  uint8_t piece_idx       = 0;
+  uint8_t piece_start_row = 0;
 
-  p_piece->position_col   = start_col;
   p_piece->position_row   = 0;
-  p_piece->displayed_rows = 1;
+  p_piece->position_col   = start_col;
+  p_piece->displayed_rows = p_piece->order;
   p_piece->displayed_cols = p_piece->order;
+  
+  uint8_t i = 0;
+  uint8_t j = 0;
+  bool flag_break = false;
 
-  for( uint8_t j=0; j<p_piece->order; j++ ){
-    piece_idx  = piece_row + j;
-    board[0][start_col + j] = p_piece->shape[piece_idx];
+  /* Check for empty rows in the piece upper portion */
+  while( i<p_piece->order && !flag_break ){
+    while( j<p_piece->order ){
+      piece_idx = ( p_piece->order * i ) + j;
+
+      if( p_piece->shape[piece_idx] == 1 ){
+        LOG_INF( "i: %u", i );
+        piece_start_row = i;
+        flag_break = true;
+        break;
+      }
+
+      j++;
+    }
+
+    j = 0;
+    i++;
+  }
+
+  p_piece->position_row -= piece_start_row;
+
+  uint8_t board_row_idx = 0;
+  i = 0;
+  j = 0;
+
+  for( i=piece_start_row; i<p_piece->order; i++ ){
+    for( j=0; j<p_piece->order; j++ ){
+      piece_idx = ( p_piece->order * i ) + j;
+      board[board_row_idx][start_col + j] = p_piece->shape[piece_idx];
+    }
+    board_row_idx++;
   }
 }
 
@@ -173,9 +209,9 @@ uint8_t move_piece_through_board( uint8_t direction, PIECE_STRUCT_T *p_piece ){
 
   /* Clear the piece in the current position */
   BOARD_AREA_T area;
-  area.start_row = p_piece->position_row;
-  area.start_col = p_piece->position_col;
-  area.end_row   = p_piece->position_row + p_piece->displayed_rows;  // this will be a problem
+  area.start_row = ( p_piece->position_row <= 0 ? 0 : p_piece->position_row );
+  area.start_col = ( p_piece->position_col <= 0 ? 0 : p_piece->position_col );
+  area.end_row   = p_piece->position_row + p_piece->order;  // this will be a problem
   area.end_col   = p_piece->position_col + p_piece->order;
   _clear_board_area( &area );
 
@@ -216,35 +252,38 @@ static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piec
   switch( direction ){
     case BOARD_DIRECTION_DOWN:
     {
-      if( ( p_piece->position_row + p_piece->order ) >= ( BOARD_ROW_SIZE - 1 ) ){
-        LOG_INF( "*** piece hit bottom border ***\n" );
-        return BOARD_COLLISION_BORDER_BOTTOM;
-      }
-      else if( p_piece->displayed_rows == p_piece->order ){  //
-        LOG_DBG( "*** piece hit bottom border ***\n" );
-      }
+      // if( ( p_piece->position_row + p_piece->order ) >= ( BOARD_ROW_SIZE - 1 ) ){
+      //   LOG_INF( "*** piece hit bottom border ***\n" );
+      //   return BOARD_COLLISION_BORDER_BOTTOM;
+      // }
 
-      uint8_t piece_row = p_piece->order * ( p_piece->order - 1 );
-      offset_row = p_piece->position_row + p_piece->displayed_rows + 1;
+      uint8_t collision_result   = 0;
+      uint8_t piece_last_row_idx = 0;
+      offset_row = p_piece->position_row + p_piece->order + 1;
       
-      for( uint8_t j=0; j<p_piece->order; j++ ){
-        offset_col = p_piece->position_col + j;
-        piece_idx  = piece_row + j;
+      for( uint8_t i=(p_piece->order-1); i>=0; i-- ){
+        piece_last_row_idx = p_piece->order * i;
+        offset_row--;
 
-        uint8_t collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
-        
-        // if( board[offset_row][offset_col] + p_piece->shape[piece_idx] > 1 ){
-        //   // hit
-        //   printf( "*** piece hit something ***\n" );
-        //   return BOARD_PIECE_COLLISION;
-        // }
-        if( collision_result == 2 ){
-          printf( "*** piece hit other piece ***\n" );
-          return BOARD_COLLISION_OBJECT_BOTTOM;
-        }
-        else if( collision_result > 3 ){
-          printf( "*** piece hit border ***\n" );
-          return BOARD_COLLISION_BORDER_BOTTOM;
+        if( !piece_is_row_empty( p_piece, piece_last_row_idx ) ){
+          for( uint8_t j=0; j<p_piece->order; j++ ){
+            offset_col = p_piece->position_col + j;
+            piece_idx  = piece_last_row_idx + j;
+            
+            if( offset_col <= 0 )
+              continue;
+            
+            collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
+            
+            if( collision_result == 2 ){
+              LOG_INF( "*** piece hit another piece ***\n" );
+              return BOARD_COLLISION_OBJECT_BOTTOM;
+            }
+            else if( collision_result > 3 ){
+              LOG_INF( "*** piece hit bottom border ***\n" );
+              return BOARD_COLLISION_BORDER_BOTTOM;
+            }
+          }
         }
       }
       break;

@@ -11,6 +11,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "main.h"
 #include "pieces.h"
@@ -85,6 +87,17 @@ static piece_shape_t piece_L_flipped[PIECE_L_FLIPPED_SIZE] = {
   @returns      One of the possible TETRIS_RET_x macro values (defined in main.h).
 */
 void _piece_copy_shape( PIECE_STRUCT_T *dst, piece_shape_t *src, uint8_t size );
+
+/*!
+  @brief        Checks if a row or column (segment) of the piece is completely empty, i.e. every element is 0.
+
+  @param[in]    p_piece: pointer to the piece to be checked.
+  @param[in]    seg_idx: the index of the segment to be checked.
+  @param[in]    check_row: whether the segment to be checked is a row (true) or a column (false).
+
+  @returns      true if segment is empty, false otherwise.
+*/
+static inline bool _piece_is_segment_empty( PIECE_STRUCT_T *p_piece, uint8_t seg_idx, bool check_row );
 
 
 /* ==========================================================================================================
@@ -179,6 +192,16 @@ void piece_print( PIECE_STRUCT_T *p_piece ){
 }
 
 
+bool piece_is_row_empty( PIECE_STRUCT_T *p_piece, uint8_t row_idx ){
+  return _piece_is_segment_empty( p_piece, row_idx, true );
+}
+
+bool piece_is_col_empty( PIECE_STRUCT_T *p_piece, uint8_t col_idx ){
+  return _piece_is_segment_empty( p_piece, col_idx, false );
+}
+
+
+
 /* ==========================================================================================================
  * Static Functions Declaration
  */
@@ -187,5 +210,22 @@ void piece_print( PIECE_STRUCT_T *p_piece ){
 void _piece_copy_shape( PIECE_STRUCT_T *dst, piece_shape_t *src, uint8_t size ){
   for( uint8_t i=0; i<size; i++ ){
     dst->shape[i] = src[i];
+  }
+}
+
+
+static inline bool _piece_is_segment_empty( PIECE_STRUCT_T *p_piece, uint8_t seg_idx, bool check_row ){
+  uint8_t piece_start_row = ( p_piece->order * seg_idx );
+  uint8_t piece_idx       = 0;
+  uint8_t i               = 0;
+
+  while( i < p_piece->order ){
+    piece_idx = piece_start_row + i;
+
+    if( p_piece->shape[piece_idx] == 1 ){
+      return true;
+    }
+
+    i++;
   }
 }
