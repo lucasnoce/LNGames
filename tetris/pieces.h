@@ -14,6 +14,7 @@
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 
 
 /* ==========================================================================================================
@@ -86,13 +87,16 @@ typedef uint8_t piece_shape_t;
   @param        displayed_rows: number of piece rows displeyd in the board (starts with 0 and goes up to 'order').
   @param        shape: pointer to the square matrix that describes the piece's shape.
 
+  @warning      Beware of `position_row` and `position_col` being signed integers to account for pieces being
+                positioned all the way up or to the left with negative indexes.
+
   @note         Despite being used as a matrix, a piece is actually described as a single dimension array.
 */
 typedef struct PIECE_STRUCT_TAG{
   uint8_t order;
   uint8_t size;
-  uint8_t position_row;
-  uint8_t position_col;
+  int8_t  position_row;
+  int8_t  position_col;
   uint8_t displayed_rows;
   uint8_t displayed_cols;
   piece_shape_t shape[PIECE_LARGEST_SIZE];
@@ -130,6 +134,26 @@ void piece_rotate_90deg( PIECE_STRUCT_T *p_piece );
   @returns      void
 */
 void piece_print( PIECE_STRUCT_T *p_piece );
+
+/*!
+  @brief        Checks if a row of the piece is completely empty, i.e. every element is 0.
+
+  @param[in]    p_piece: pointer to the piece to be checked.
+  @param[in]    row_idx: the row to be checked.
+
+  @returns      true if row is empty, false otherwise.
+*/
+bool piece_is_row_empty( PIECE_STRUCT_T *p_piece, uint8_t row_idx );
+
+/*!
+  @brief        Checks if a col of the piece is completely empty, i.e. every element is 0.
+
+  @param[in]    p_piece: pointer to the piece to be checked.
+  @param[in]    col_idx: the col to be checked.
+
+  @returns      true if col is empty, false otherwise.
+*/
+bool piece_is_col_empty( PIECE_STRUCT_T *p_piece, uint8_t col_idx );
 
 
 #endif /* _PIECES_H_ */
