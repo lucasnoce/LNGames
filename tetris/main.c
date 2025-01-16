@@ -34,9 +34,9 @@ int main( void ){
   board_print();
   LOG_INF( "\n\n" );
 
-  for( uint8_t i=0; i<8; i++ ){
+  for( uint8_t i=0; i<5; i++ ){
       // board_print();
-    if( move_piece_through_board( BOARD_DIRECTION_LEFT, &piece ) != TETRIS_RET_ERR ){
+    if( move_piece_through_board( BOARD_DIRECTION_DOWN, &piece ) != TETRIS_RET_ERR ){
       board_print();
       LOG_INF( "\n\n" );
     }

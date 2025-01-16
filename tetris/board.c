@@ -95,6 +95,15 @@ static void _clear_board_area( BOARD_AREA_T *p_area );
 static void _clear_board_entirely( void );
 
 /*!
+  @brief        Clears a portion of the board, specified by the piece position.
+
+  @param[in]    p_piece: pointer to the piece to be removed.
+
+  @returns      void
+*/
+static void _remove_piece_from_board( PIECE_STRUCT_T *p_piece );
+
+/*!
   @brief        Check if the piece will collide with another piece or the border after it is moved.
 
   @param[in]    direction: which direction to move the piece (from BOARD_DIRECTIONS_E).
@@ -132,6 +141,11 @@ void board_init( void ){
   for( uint8_t j=0; j<BOARD_COL_SIZE; j++ ){
     board[ BOARD_ROW_SIZE - 1 ][j] = BOARD_REGION_BORDER_VALUE;
   }
+  
+  /* Test with piece portions: */
+  // board[1][3] = 1;
+  // board[3][6] = 1;
+  // board[1][9] = 1;
 }
 
 
@@ -208,12 +222,7 @@ uint8_t move_piece_through_board( uint8_t direction, PIECE_STRUCT_T *p_piece ){
   }
 
   /* Clear the piece in the current position */
-  BOARD_AREA_T area;
-  area.start_row = ( p_piece->position_row <= 0 ? 0 : p_piece->position_row );
-  area.start_col = ( p_piece->position_col <= 0 ? 0 : p_piece->position_col );
-  area.end_row   = p_piece->position_row + p_piece->order;  // this will be a problem
-  area.end_col   = p_piece->position_col + p_piece->order;
-  _clear_board_area( &area );
+  _remove_piece_from_board( p_piece );
 
   /* Move the piece */
   return _move_piece( direction, p_piece );
@@ -240,6 +249,28 @@ static void _clear_board_area( BOARD_AREA_T *p_area ){
 static void _clear_board_entirely( void ){
   BOARD_AREA_T area = { 0, 0, BOARD_ROW_SIZE, BOARD_COL_SIZE };
   _clear_board_area( &area );
+}
+
+
+static void _remove_piece_from_board( PIECE_STRUCT_T *p_piece ){
+  uint8_t piece_idx = 0;
+  uint8_t piece_row = 0;
+  uint8_t board_row = 0;
+  uint8_t board_col = 0;
+
+  for( uint8_t i=0; i<p_piece->order; i++ ){
+    piece_row = ( p_piece->order * i );
+    board_row = p_piece->position_row + i;
+
+    for( uint8_t j=0; j<p_piece->order; j++ ){
+      piece_idx = piece_row + j;
+      board_col = p_piece->position_col + j;
+
+      if( p_piece->shape[piece_idx] != 0 ){
+        board[board_row][board_col] = 0;
+      }
+    }
+  }
 }
 
 
