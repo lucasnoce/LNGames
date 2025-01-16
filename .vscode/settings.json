@@ -1,6 +1,9 @@
 {
   "files.associations": {
     "pieces.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "stdbool.h": "c",
+    "main.h": "c",
+    "board.h": "c"
   }
 }
