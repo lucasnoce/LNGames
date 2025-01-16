@@ -19,12 +19,15 @@
 #if ( LOG_LEVEL >= LOG_LEVEL_DBG )
 #define LOG_INF(...) printf(__VA_ARGS__)
 #define LOG_DBG(...) printf(__VA_ARGS__)
+
 #elif ( LOG_LEVEL == LOG_LEVEL_INF )
 #define LOG_INF(...) printf(__VA_ARGS__)
 #define LOG_DBG(...) // Do nothing
+
 #else
 #define LOG_INF(...) // Do nothing
 #define LOG_DBG(...) // Do nothing
+
 #endif /* LOG_DBG */
 
 #endif /* _LOG_PRINT_H_ */

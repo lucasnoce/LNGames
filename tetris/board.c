@@ -259,7 +259,7 @@ static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piec
           piece_idx = ( p_piece->order * i ) + j;
           LOG_DBG( "p_piece->shape[%u][%u]: %u\n", i, j, p_piece->shape[piece_idx] );
 
-          if( p_piece->shape[piece_idx] == 1 ){  // this cell can hit something below
+          if( p_piece->shape[piece_idx] == 1 ){  // this cell can hit something
             offset_col = p_piece->position_col + j;
             offset_row = p_piece->position_row + i + 1;  // one row below
             collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
@@ -267,7 +267,7 @@ static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piec
             LOG_DBG( "board[%u][%u]: %u\n", offset_row, offset_col, board[offset_row][offset_col] );
 
             if( collision_result == 2 ){
-              LOG_INF( "*** piece hit another piece ***\n" );
+              LOG_INF( "*** piece hit another piece at the bottom ***\n" );
               return BOARD_COLLISION_OBJECT_BOTTOM;
             }
             else if( collision_result > 3 ){
@@ -285,77 +285,67 @@ static uint8_t _check_piece_collision( uint8_t direction, PIECE_STRUCT_T *p_piec
 
     case BOARD_DIRECTION_LEFT:
     {
-      uint8_t piece_col = 0;
-      uint8_t piece_first_visible_row = p_piece->order - p_piece->displayed_rows;
-      offset_row = p_piece->position_row;
+      uint8_t collision_result = 0;
 
-      // offset_col = p_piece->position_col - 1;
-      offset_col = p_piece->position_col <= 1 ? 0 : ( p_piece->position_col - 1 );
+      for( int8_t i=0; i<p_piece->order; i++ ){    // row
+        for( int8_t j=0; j<p_piece->order; j++ ){  // col
+          piece_idx = ( p_piece->order * i ) + j;
+          LOG_DBG( "p_piece->shape[%u][%u]: %u\n", i, j, p_piece->shape[piece_idx] );
 
-      for( uint8_t i=(p_piece->order - 1); i>=piece_first_visible_row; i-- ){
-        piece_idx  = ( p_piece->order * i ) + piece_col;
-        uint8_t collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
-        
-        printf( "%u + %u = %u\n",
-          board[offset_row][offset_col],
-          p_piece->shape[piece_idx],
-          collision_result );
+          if( p_piece->shape[piece_idx] == 1 ){  // this cell can hit something
+            offset_col = p_piece->position_col + j - 1;  // one col to the left
+            offset_row = p_piece->position_row + i;
+            collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
+            
+            LOG_DBG( "board[%u][%u]: %u\n", offset_row, offset_col, board[offset_row][offset_col] );
 
-        /* 
-          if collision_result == 3, then it's just an empty portion
-          of the piece touching the border.
-        */
-        if( collision_result == 2 ){
-          printf( "*** piece hit other piece ***\n" );
-          return BOARD_COLLISION_OBJECT_LEFT;
+            if( collision_result == 2 ){
+              LOG_INF( "*** piece hit another piece to the left ***\n" );
+              return BOARD_COLLISION_OBJECT_LEFT;
+            }
+            else if( collision_result > 3 ){
+              LOG_INF( "*** piece hit left-side border ***\n" );
+              return BOARD_COLLISION_BORDER_LEFT;
+            }
+
+            break;
+          }
         }
-        else if( collision_result > 3 ){
-          printf( "*** piece hit border ***\n" );
-          return BOARD_COLLISION_BORDER_LEFT;
-        }
-        
-        offset_row++;
       }
-
+      
       break;
     }
 
     case BOARD_DIRECTION_RIGHT:
     {
-      if( ( p_piece->position_col + p_piece->order ) >= ( BOARD_COL_SIZE - 1 ) ){
-        printf( "*** piece hit right-side border ***\n" );
-        return BOARD_COLLISION_BORDER_RIGHT;
-      }
+      uint8_t collision_result = 0;
 
-      uint8_t piece_col = p_piece->order - 1;
-      uint8_t piece_start_row = p_piece->order - p_piece->displayed_rows;
-      offset_col = p_piece->position_col + p_piece->order;
-      offset_row = p_piece->position_row;
+      for( int8_t i=0; i<p_piece->order; i++ ){         // row
+        for( int8_t j=(p_piece->order-1); j>=0; j-- ){  // col
+          piece_idx = ( p_piece->order * i ) + j;
+          LOG_DBG( "p_piece->shape[%u][%u]: %u\n", i, j, p_piece->shape[piece_idx] );
 
-      for( uint8_t i=piece_start_row; i<p_piece->order; i++ ){
-        piece_idx  = ( p_piece->order * i ) + piece_col;
-        uint8_t collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
-        
-        // printf( "%u + %u = %u\n",
-        //   board[offset_row][offset_col],
-        //   p_piece->shape[piece_idx],
-        //   collision_result );
+          if( p_piece->shape[piece_idx] == 1 ){  // this cell can hit something
+            offset_col = p_piece->position_col + j + 1;  // one col to the right
+            offset_row = p_piece->position_row + i;
+            collision_result = board[offset_row][offset_col] + p_piece->shape[piece_idx];
+            
+            LOG_DBG( "board[%u][%u]: %u\n", offset_row, offset_col, board[offset_row][offset_col] );
 
-        /* 
-          if collision_result == 3, then it's just an empty portion
-          of the piece touching the border.
-        */
-        if( collision_result == 2 ){
-          printf( "*** piece hit other piece ***\n" );
-          return BOARD_COLLISION_OBJECT_RIGHT;
+            if( collision_result == 2 ){
+              LOG_INF( "*** piece hit another piece to the right ***\n" );
+              return BOARD_COLLISION_OBJECT_RIGHT;
+            }
+            else if( collision_result > 3 ){
+              LOG_INF( "*** piece hit right-side border ***\n" );
+              return BOARD_COLLISION_BORDER_RIGHT;
+            }
+
+            break;
+          }
         }
-        else if( collision_result > 3 ){
-          printf( "*** piece hit border ***\n" );
-          return BOARD_COLLISION_BORDER_RIGHT;
-        }
-        
-        offset_row++;
       }
+      
       break;
     }
 

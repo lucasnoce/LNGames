@@ -19,13 +19,14 @@ int main( void ){
 
   PIECE_STRUCT_T piece = { 0 };
 
-  piece_get( PIECE_SHAPE_SQUARE, &piece );
+  piece_get( PIECE_SHAPE_L, &piece );
   
   LOG_INF( "original:\n" );
   piece_print( &piece );
   LOG_INF( "\n" );
-  // piece_rotate_90deg( &piece );
-  // piece_rotate_90deg( &piece );
+  piece_rotate_90deg( &piece );
+  piece_rotate_90deg( &piece );
+  piece_rotate_90deg( &piece );
 
   add_new_piece_to_board( &piece );
 
@@ -35,7 +36,7 @@ int main( void ){
 
   for( uint8_t i=0; i<8; i++ ){
       // board_print();
-    if( move_piece_through_board( BOARD_DIRECTION_DOWN, &piece ) != TETRIS_RET_ERR ){
+    if( move_piece_through_board( BOARD_DIRECTION_LEFT, &piece ) != TETRIS_RET_ERR ){
       board_print();
       LOG_INF( "\n\n" );
     }
