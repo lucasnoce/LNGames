@@ -72,14 +72,14 @@ int main_loop_init( void ){
     DWORD exitCode;
     GetExitCodeThread( threads[finished_idx], &exitCode );
 
-    LOG_DBG( "Thread %d finished with return value: %lu\n", finished_idx + 1, exitCode );
+    LOG_DBG( "Thread %d finished with return value: %lu\n", finished_idx, exitCode );
 
     for( uint8_t i=0; i<thread_count; i++ ){
       if( i == finished_idx ) continue;
 
       TerminateThread( threads[i], 0 );
 
-      LOG_DBG( "Thread %d terminated.\n", otherThreadIndex + 1 );
+      LOG_DBG( "Thread %d terminated.\n", i );
     }
   }
 
@@ -101,7 +101,7 @@ DWORD WINAPI _key_input_thread( void *data ){
   while( 1 ){
     if( _kbhit() ) {
       key = _getch();
-      LOG_INF( "You pressed: %c\n", key );
+      LOG_DBG( "You pressed: %c\n", key );
 
       switch( key ){
         case GAME_MOVE_DOWN_CHAR:
@@ -129,12 +129,13 @@ DWORD WINAPI _key_input_thread( void *data ){
 }
 
 DWORD WINAPI _graphics_thread( void *data ){
+  uint16_t i = 0;
   graphics_init();
   
   while( 1 ){
     graphics_clear_screen();
     graphics_print_game();
-    LOG_DBG( "Graphics %u\n", i );
+    LOG_DBG( "Graphics %u\n", i++ );
     Sleep( 1000 );
   }
 

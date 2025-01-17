@@ -153,13 +153,13 @@ void board_print( void ){
   for( uint8_t i=0; i<BOARD_ROW_SIZE; i++ ){
     for( uint8_t j=0; j<BOARD_COL_SIZE; j++ ){
       if( j == ( BOARD_COL_SIZE - 1 ) ){
-        LOG_INF( "%u\n", board[i][j] );
+        LOG_GAME( "%u\n", board[i][j] );
       }
       else{
         if( board[i][j] != 0 )
-          LOG_INF( "%u ", board[i][j] );
+          LOG_GAME( "%u ", board[i][j] );
         else
-          LOG_INF( "_|" );
+          LOG_GAME( "_|" );
       }
     }
   }
