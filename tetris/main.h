@@ -12,19 +12,24 @@
  * Includes
  */
 
-#include "log_print.h"
-#ifdef LOG_LEVEL
-#undef LOG_LEVEL
-#endif /* LOG_LEVEL */
+// #ifdef LOG_LEVEL
+// #undef LOG_LEVEL
+// #endif /* LOG_LEVEL */
 
 /* ==========================================================================================================
  * Definitions
  */
 
-#define LOG_LEVEL LOG_LEVEL_WRN
+#define LOG_LEVEL LOG_LEVEL_DBG
 
 #define TETRIS_RET_OK   0
 #define TETRIS_RET_ERR  1
+
+/* ==========================================================================================================
+ * Includes
+ */
+
+#include "log_print.h"
 
 /* ==========================================================================================================
  * Typedefs

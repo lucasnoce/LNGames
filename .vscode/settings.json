@@ -1,6 +1,12 @@
 {
   "files.associations": {
     "pieces.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "stdbool.h": "c",
+    "main.h": "c",
+    "board.h": "c",
+    "main_loop.h": "c",
+    "format": "c",
+    "windows.h": "c"
   }
 }
