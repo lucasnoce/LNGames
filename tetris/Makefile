@@ -6,7 +6,7 @@ CFLAGS = -Wall -g
 BUILD_DIR = build
 
 # Source files
-SRC = main.c pieces.c board.c
+SRC = main.c pieces.c board.c main_loop.c
 
 # Object files
 OBJ = $(SRC:%.c=$(BUILD_DIR)/%.o)

@@ -7,12 +7,23 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <windows.h>
 
 #include "main.h"
 #include "pieces.h"
 #include "board.h"
+#include "main_loop.h"
+
+void test_function( void );
 
 int main( void ){
+  main_loop_init();
+  // test_function();
+
+  return 0;
+}
+
+void test_function( void ){
   LOG_INF( "board:\n" );
   board_init();
   // board_print();
@@ -41,7 +52,4 @@ int main( void ){
       LOG_INF( "\n\n" );
     }
   }
-
-  return 0;
 }
-
