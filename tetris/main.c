@@ -11,6 +11,7 @@
 #include "main.h"
 #include "pieces.h"
 #include "board.h"
+#include "SDL\include\SDL.h"
 
 int main( void ){
   LOG_INF( "board:\n" );
