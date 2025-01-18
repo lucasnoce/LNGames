@@ -198,9 +198,9 @@ int8_t piece_print( PIECE_STRUCT_T *p_piece ){
     for( uint8_t j=0; j<p_piece->order; j++ ){
       piece_idx = (p_piece->order * i) + j;
       if( j == ( p_piece->order - 1 ) )
-        LOG_INF( "%u\n", p_piece->shape[piece_idx] );
+        LOG_GAME( "%u\n", p_piece->shape[piece_idx] );
       else
-        LOG_INF( "%u, ", p_piece->shape[piece_idx] );
+        LOG_GAME( "%u, ", p_piece->shape[piece_idx] );
     }
   }
 

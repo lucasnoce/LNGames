@@ -6,7 +6,7 @@ To do list:
 - Easy part:
   - Periodically move the new piece down
   - "Fix" the piece on its last state
-  - Add keyboard inputs
+  - ~[Done] Add keyboard inputs~
   - Score when full row
 - Further development:
   - Add proper graphics

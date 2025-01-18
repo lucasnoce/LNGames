@@ -9,10 +9,18 @@
 #define _MAIN_H_
 
 /* ==========================================================================================================
+ * Includes
+ */
+
+// #ifdef LOG_LEVEL
+// #undef LOG_LEVEL
+// #endif /* LOG_LEVEL */
+
+/* ==========================================================================================================
  * Definitions
  */
 
-#define LOG_LEVEL LOG_LEVEL_INF
+#define LOG_LEVEL LOG_LEVEL_DBG
 
 #define TETRIS_RET_OK            0
 #define TETRIS_RET_ERR          -1
