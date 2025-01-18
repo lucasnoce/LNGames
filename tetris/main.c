@@ -24,7 +24,7 @@ int main( void ){
 }
 
 void test_function( void ){
-  LOG_INF( "board:\n" );
+  LOG_DBG( "board:\n" );
   board_init();
   // board_print();
 
@@ -33,24 +33,24 @@ void test_function( void ){
 
   piece_get( piece_type, &piece );
   
-  LOG_INF( "original:\n" );
+  LOG_DBG( "original:\n" );
   piece_print( &piece );
-  LOG_INF( "\n" );
+  LOG_DBG( "\n" );
   piece_rotate_90deg( &piece );
   piece_rotate_90deg( &piece );
   piece_rotate_90deg( &piece );
 
   add_new_piece_to_board( piece_type );
 
-  LOG_INF( "\n" );
+  LOG_DBG( "\n" );
   board_print();
-  LOG_INF( "\n\n" );
+  LOG_DBG( "\n\n" );
 
   for( uint8_t i=0; i<5; i++ ){
       // board_print();
     if( move_current_piece_through_board( BOARD_DIRECTION_DOWN ) != TETRIS_RET_ERR ){
       board_print();
-      LOG_INF( "\n\n" );
+      LOG_DBG( "\n\n" );
     }
   }
 }

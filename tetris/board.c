@@ -118,6 +118,15 @@ static void _remove_current_piece_from_board( void );
 static void _set_current_piece_value_to_board( uint8_t value );
 
 /*!
+  @brief        Clears a row that is full of 1s and moves the above rows one row down.
+
+  @param[in]    p_area: pointer to the area to be cleared.
+
+  @returns      void
+*/
+static void _clear_complete_row( BOARD_AREA_T *p_area );
+
+/*!
   @brief        Check if the piece will collide with another piece or the border after it is moved.
 
   @param[in]    direction: which direction to move the piece (from BOARD_DIRECTIONS_E).
@@ -201,7 +210,7 @@ void add_new_piece_to_board( uint8_t type ){
       piece_idx = ( current_piece.order * i ) + j;
 
       if( current_piece.shape[piece_idx] == 1 ){
-        LOG_DBG( "i: %u", i );
+        LOG_DBG( "i: %u\n", i );
         piece_start_row = i;
         flag_break = true;
         break;
@@ -272,12 +281,52 @@ uint8_t fix_current_piece_on_board( void ){
 }
 
 
+bool check_complete_row( void ){
+  uint8_t seg_count = 0;  // segment sum
+
+  /* Check for game over condition (at least one column full of 1) */
+  for( uint8_t j=1; j<(BOARD_COL_SIZE-1); j++ ){    // discard first and last col (borders)
+    seg_count = 0;
+
+    for( uint8_t i=0; i<(BOARD_ROW_SIZE-1); i++ ){  // discard last row (border)
+      seg_count += board[i][j];
+    }
+
+    if( seg_count >= ( BOARD_ROW_SIZE - 2 ) ){
+      return TETRIS_GAME_OVER;
+    }
+  }
+
+  /* Check for game score condition (rows full of 1) */
+  for( uint8_t i=1; i<(BOARD_ROW_SIZE-1); i++ ){    // discard first and last row (game over and border)
+    seg_count = 0;
+
+    for( uint8_t j=1; j<(BOARD_COL_SIZE-1); j++ ){  // discard first and last col (borders)
+      seg_count += board[i][j];
+    }
+
+    if( seg_count >= ( BOARD_COL_SIZE - 2 ) ){
+      BOARD_AREA_T area = { i, 1, i, ( BOARD_COL_SIZE - 1 ) };
+      _clear_complete_row( &area );
+    }
+  }
+
+  return TETRIS_GAME_NOT_OVER;
+}
+
+
 /* ==========================================================================================================
  * Static Functions Declaration
  */
 
 
-static void _clear_board_area( BOARD_AREA_T *p_area ){
+static inline void _clear_board_area( BOARD_AREA_T *p_area ){
+  if( p_area->start_row == p_area->end_row )
+    p_area->end_row++;
+  
+  if( p_area->start_col == p_area->end_col )
+    p_area->end_col++;
+
   for( uint8_t i=p_area->start_row; i<p_area->end_row; i++ ){
     for( uint8_t j=p_area->start_col; j<p_area->end_col; j++ ){
       if( board[i][j] != BOARD_REGION_BORDER_VALUE )
@@ -316,6 +365,22 @@ static void _set_current_piece_value_to_board( uint8_t value ){
         board[board_row][board_col] = value;
       }
     }
+  }
+}
+
+
+static void _clear_complete_row( BOARD_AREA_T *p_area ){
+  _clear_board_area( p_area );  // clear the row
+
+  /* Move all the rows above the cleared row one row down */
+  for( int8_t i=p_area->start_row; i>0; i-- ){  // row
+    for( uint8_t j=1; j<(BOARD_COL_SIZE-1); j++ ){
+      board[i][j] = board[i-1][j];
+    }
+  }
+
+  for( uint8_t j=1; j<(BOARD_COL_SIZE-1); j++ ){
+    board[0][j] = board[1][j];
   }
 }
 

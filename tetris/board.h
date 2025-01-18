@@ -105,4 +105,13 @@ int8_t move_current_piece_through_board( uint8_t direction );
 */
 uint8_t fix_current_piece_on_board( void );
 
+/*!
+  @brief        Checks if a row has been completed, i.e. player has scored.
+
+  @param        none
+
+  @returns      void
+*/
+bool check_complete_row( void );
+
 #endif /* _BOARD_H_ */
