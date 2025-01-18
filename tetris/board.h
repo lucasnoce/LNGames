@@ -39,7 +39,7 @@ typedef enum{
   @brief        Indicates the possible collision events of a piece in the board.
 */
 typedef enum{
-  BOARD_NO_COLLISION = 0,
+  BOARD_NO_COLLISION = 1,
   BOARD_COLLISION_BORDER_BOTTOM,
   BOARD_COLLISION_BORDER_LEFT,
   BOARD_COLLISION_BORDER_RIGHT,
@@ -63,12 +63,16 @@ typedef uint8_t board_region_t;
 /*!
   @brief        Initializes the board with zeros and U-shaped border.
 
+  @param        none
+
   @returns      void
 */
 void board_init( void );
 
 /*!
   @brief        Prints the board in its current state.
+
+  @param        none
 
   @returns      void
 */
@@ -77,21 +81,28 @@ void board_print( void );
 /*!
   @brief        Adds the bottom row of a piece to the top center of the board.
 
-  @param[in]    p_piece: pointer to the piece to be added.
+  @param[in]    type: one of the piece shape types (from PIECE_SHAPES_E).
 
   @returns      void
 */
-void add_new_piece_to_board( PIECE_STRUCT_T *p_piece );
+void add_new_piece_to_board( uint8_t type );
 
 /*!
   @brief        Moves a piece through the board, if said movement is valid.
 
   @param[in]    direction: which direction to move the piece (from BOARD_DIRECTIONS_E).
-  @param[in]    p_piece: pointer to the piece to be moved.
 
   @returns      One of the possible TETRIS_RET_x macro values (defined in main.h).
 */
-uint8_t move_piece_through_board( uint8_t direction, PIECE_STRUCT_T *p_piece );
+int8_t move_current_piece_through_board( uint8_t direction );
 
+/*!
+  @brief        Fix the current piece in its current position. After that, it can no longer be moved.
+
+  @param        none
+
+  @returns      void
+*/
+uint8_t fix_current_piece_on_board( void );
 
 #endif /* _BOARD_H_ */

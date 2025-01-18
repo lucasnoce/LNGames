@@ -78,13 +78,16 @@ typedef enum{
 typedef uint8_t piece_shape_t;
 
 /*!
-  @brief        Indicates the possible directions a piece can be moved.
+  @brief        Indicates all the piece parameters.
 
   @param        order: the order (n) of the square matrix (n x n) that describes the piece shape.
   @param        size: the total number of elements in the square matrix (size = order^2).
+  @param        displayed_rows: number of piece rows displeyd in the board (starts with 0 and goes up to 'order').
+  @param        displayed_cols: number of piece cols displeyd in the board (starts with 0 and goes up to 'order').
   @param        position_row: the row number of the board at which the piece starts.
   @param        position_col: the column number of the board at which the piece starts.
-  @param        displayed_rows: number of piece rows displeyd in the board (starts with 0 and goes up to 'order').
+  @param        is_colliding: flag to identify whether the piece is currently colliding at the downwards direction.
+  @param        is_moving: flag to identify whether the piece is still allowed to move through the board.
   @param        shape: pointer to the square matrix that describes the piece's shape.
 
   @warning      Beware of `position_row` and `position_col` being signed integers to account for pieces being
@@ -95,10 +98,12 @@ typedef uint8_t piece_shape_t;
 typedef struct PIECE_STRUCT_TAG{
   uint8_t order;
   uint8_t size;
-  int8_t  position_row;
-  int8_t  position_col;
   uint8_t displayed_rows;
   uint8_t displayed_cols;
+  int8_t  position_row;
+  int8_t  position_col;
+  bool is_colliding;
+  bool is_moving;
   piece_shape_t shape[PIECE_LARGEST_SIZE];
 } PIECE_STRUCT_T;
 
@@ -115,25 +120,25 @@ typedef struct PIECE_STRUCT_TAG{
 
   @returns      One of the possible TETRIS_RET_x macro values (defined in main.h).
 */
-uint8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece );
+int8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece );
 
 /*!
   @brief        Rotate a piece 90 degrees clockwise around its center.
 
   @param[in]    p_piece: pointer to the piece to be rotated.
 
-  @returns      void
+  @returns      One of the possible TETRIS_RET_x macro values (defined in main.h).
 */
-void piece_rotate_90deg( PIECE_STRUCT_T *p_piece );
+int8_t piece_rotate_90deg( PIECE_STRUCT_T *p_piece );
 
 /*!
   @brief        Prints a piece in its current orientation.
 
   @param[in]    p_piece: pointer to the piece to be printed.
 
-  @returns      void
+  @returns      One of the possible TETRIS_RET_x macro values (defined in main.h).
 */
-void piece_print( PIECE_STRUCT_T *p_piece );
+int8_t piece_print( PIECE_STRUCT_T *p_piece );
 
 /*!
   @brief        Checks if a row of the piece is completely empty, i.e. every element is 0.
@@ -155,5 +160,13 @@ bool piece_is_row_empty( PIECE_STRUCT_T *p_piece, uint8_t row_idx );
 */
 bool piece_is_col_empty( PIECE_STRUCT_T *p_piece, uint8_t col_idx );
 
+/*!
+  @brief        Checks if a piece is new, i.e. can still move through the board.
+
+  @param[in]    p_piece: pointer to the piece to be checked.
+
+  @returns      true if piece is new, false otherwise.
+*/
+bool piece_is_moving( PIECE_STRUCT_T *p_piece );
 
 #endif /* _PIECES_H_ */

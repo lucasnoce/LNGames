@@ -28,8 +28,9 @@ void test_function( void ){
   // board_print();
 
   PIECE_STRUCT_T piece = { 0 };
+  uint8_t piece_type = PIECE_SHAPE_L;
 
-  piece_get( PIECE_SHAPE_L, &piece );
+  piece_get( piece_type, &piece );
   
   LOG_INF( "original:\n" );
   piece_print( &piece );
@@ -38,7 +39,7 @@ void test_function( void ){
   piece_rotate_90deg( &piece );
   piece_rotate_90deg( &piece );
 
-  add_new_piece_to_board( &piece );
+  add_new_piece_to_board( piece_type );
 
   LOG_INF( "\n" );
   board_print();
@@ -46,7 +47,7 @@ void test_function( void ){
 
   for( uint8_t i=0; i<5; i++ ){
       // board_print();
-    if( move_piece_through_board( BOARD_DIRECTION_DOWN, &piece ) != TETRIS_RET_ERR ){
+    if( move_current_piece_through_board( BOARD_DIRECTION_DOWN ) != TETRIS_RET_ERR ){
       board_print();
       LOG_INF( "\n\n" );
     }
