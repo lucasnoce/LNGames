@@ -93,28 +93,31 @@ void graphics_clear_screen( void ){
 }
 
 
-uint8_t graphics_print_game( void ){
+uint8_t graphics_print_game( bool try_fix ){
   WaitForSingleObject(hMutex, INFINITE);
 
   graphics_clear_screen();
 
-  if( fix_current_piece_on_board() != TETRIS_RET_OK ){
-    uint8_t new_piece_type = 0;
+  if( try_fix ){
+    if( fix_current_piece_on_board() != TETRIS_RET_OK ){
+      uint8_t new_piece_type = 0;
 
-    if( check_complete_row() == TETRIS_GAME_OVER ){
-      _graphics_print_game_over();
-      return -TETRIS_RET_ERR;
+      if( check_complete_row() == TETRIS_GAME_OVER ){
+        _graphics_print_game_over();
+        return -TETRIS_RET_ERR;
+      }
+
+      LOG_INF( "fix piece\n" );
+
+      srand( time( NULL ) );
+      new_piece_type = rand() % PIECE_SHAPE_LAST_IDX;
+      
+      add_new_piece_to_board( new_piece_type );
     }
 
-    LOG_INF( "fix piece\n" );
-
-    srand( time( NULL ) );
-    new_piece_type = rand() % PIECE_SHAPE_LAST_IDX;
-    
-    add_new_piece_to_board( new_piece_type );
+    move_current_piece_through_board( BOARD_DIRECTION_DOWN );
   }
-
-  move_current_piece_through_board( BOARD_DIRECTION_DOWN );
+  
   board_print();
 
   ReleaseMutex(hMutex);

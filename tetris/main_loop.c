@@ -120,25 +120,25 @@ DWORD WINAPI _key_input_thread( void *data ){
       switch( key ){
         case GAME_MOVE_DOWN_CHAR:
           move_current_piece_through_board( BOARD_DIRECTION_DOWN );
-          graphics_print_game();
+          graphics_print_game( false );
           Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
         case GAME_MOVE_LEFT_CHAR:
           move_current_piece_through_board( BOARD_DIRECTION_LEFT );
-          graphics_print_game();
+          graphics_print_game( false );
           Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
         case GAME_MOVE_RIGHT_CHAR:
           move_current_piece_through_board( BOARD_DIRECTION_RIGHT );
-          graphics_print_game();
+          graphics_print_game( false );
           Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
         case GAME_ROTATE_CHAR:
           rotate_current_piece_through_board();
-          graphics_print_game();
+          graphics_print_game( false );
           Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
@@ -166,7 +166,7 @@ DWORD WINAPI _graphics_thread( void *data ){
     
     // graphics_clear_screen();
 
-    if( graphics_print_game() != TETRIS_RET_OK ){
+    if( graphics_print_game( true ) != TETRIS_RET_OK ){
       return 1;
     }
 
