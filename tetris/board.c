@@ -15,6 +15,7 @@
 #include <stdbool.h>
 
 #include "main.h"
+#include "score.h"
 #include "pieces.h"
 #include "board.h"
 
@@ -291,17 +292,22 @@ uint8_t fix_current_piece_on_board( void ){
 
 bool check_complete_row( void ){
   uint8_t seg_count = 0;  // segment sum
+  uint8_t piece_row = 0;  // corresponding row in piece shape
+  uint8_t piece_col = 0;  // corresponding col in piece shape
+  uint8_t piece_idx = 0;  // corresponding col in piece shape
 
-  /* Check for game over condition (at least one column full of 1) */
+  /* Check for game over condition (first row with at least a 1, current piece doesn't count) */
   for( uint8_t j=1; j<(BOARD_COL_SIZE-1); j++ ){    // discard first and last col (borders)
-    seg_count = 0;
+    if( board[0][j] != 0 &&                                               // there is a 1 in the baord
+        p_current_piece->position_col <= j &&                             // col j is in between the piece horizontal length
+        ( p_current_piece->position_col + p_current_piece->order) > j ){
+      piece_row = p_current_piece->position_row + p_current_piece->order;
+      piece_col = j - p_current_piece->position_col;
+      piece_idx = ( p_current_piece->order * piece_row ) + piece_col;
 
-    for( uint8_t i=0; i<(BOARD_ROW_SIZE-1); i++ ){  // discard last row (border)
-      seg_count += board[i][j];
-    }
-
-    if( seg_count >= ( BOARD_ROW_SIZE - 2 ) ){
-      return TETRIS_GAME_OVER;
+      if( p_current_piece->shape[piece_idx] == 0 ){  // the piece is not "causing" the 1 in the board, so it is a previous piece
+        return TETRIS_GAME_OVER;
+      }
     }
   }
 
@@ -310,12 +316,18 @@ bool check_complete_row( void ){
     seg_count = 0;
 
     for( uint8_t j=1; j<(BOARD_COL_SIZE-1); j++ ){  // discard first and last col (borders)
-      seg_count += board[i][j];
+      if( board[i][j] == 0 ){
+        break;
+      }
+      else{
+        seg_count += board[i][j];
+      }
     }
 
     if( seg_count >= ( BOARD_COL_SIZE - 2 ) ){
       BOARD_AREA_T area = { i, 1, i, ( BOARD_COL_SIZE - 1 ) };
       _clear_complete_row( &area );
+      score_increment( 0 );
     }
   }
 

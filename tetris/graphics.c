@@ -16,8 +16,10 @@
 #include <windows.h>
 
 #include "main.h"
-#include "board.h"
+#include "score.h"
 #include "pieces.h"
+#include "board.h"
+#include "graphics.h"
 
 
 static HANDLE hMutex;
@@ -68,6 +70,7 @@ uint8_t graphics_init( void ){
   }
   
   board_init();
+  score_reset_to_zero();
 
   return 0;
 }
@@ -119,6 +122,7 @@ uint8_t graphics_print_game( bool try_fix ){
   }
   
   board_print();
+  score_print();
 
   ReleaseMutex(hMutex);
   return TETRIS_RET_OK;
