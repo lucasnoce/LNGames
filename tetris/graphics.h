@@ -16,6 +16,6 @@
 uint8_t graphics_init( void );
 void graphics_deinit( void );
 void graphics_clear_screen( void );
-uint8_t graphics_print_game( void );
+uint8_t graphics_print_game( bool try_fix );
 
 #endif /* _GRAPHICS_H_ */
