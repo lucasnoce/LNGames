@@ -16,6 +16,7 @@
 
 #include "main.h"
 #include "game_config.h"
+#include "score.h"
 #include "pieces.h"
 #include "board.h"
 
@@ -54,6 +55,14 @@
 #define BOARD_H_DISPLACEMENT_RIGHT  ( (int8_t)  1 )
 #define BOARD_H_DISPLACEMENT_LEFT   ( (int8_t) -1 )
 
+#define GAME_PRINT_COLOR_MAGENTA "\033[1;35m"
+#define GAME_PRINT_COLOR_RED     "\033[1;31m"
+#define GAME_PRINT_COLOR_YELLOW  "\033[1;33m"
+#define GAME_PRINT_COLOR_GREEN   "\033[1;32m"
+#define GAME_PRINT_COLOR_CYAN    "\033[1;36m"
+#define GAME_PRINT_COLOR_BLUE    "\033[1;34m"
+#define GAME_PRINT_COLOR_RESET   "\033[0m"
+
 
 /* ==========================================================================================================
  * Static Typedefs
@@ -72,10 +81,13 @@ typedef struct BOARD_AREA_TAG{
  */
 
 /* Board start on top left corner */
-static board_region_t board[BOARD_ROW_SIZE][BOARD_COL_SIZE] = { 0 };
+static board_region_t board[BOARD_ROW_SIZE][BOARD_COL_SIZE]       = { 0 };
+static board_region_t board_color[BOARD_ROW_SIZE][BOARD_COL_SIZE] = { 0 };
 
 static PIECE_STRUCT_T current_piece;
 static PIECE_STRUCT_T *p_current_piece;
+
+static uint32_t piece_count = 0;;
 
 
 /* ==========================================================================================================
@@ -113,10 +125,11 @@ static void _remove_current_piece_from_board( void );
   @brief        Sets a specific value to all positions where the piece value is 1.
 
   @param[in]    value: the value to write on the valid positions.
+  @param[in]    reset_color: either reset or not the color to GAME_PIECE_COLOR_RESET.
 
   @returns      void
 */
-static void _set_current_piece_value_to_board( uint8_t value );
+static void _set_current_piece_value_to_board( uint8_t value, bool reset_color );
 
 /*!
   @brief        Clears a row that is full of 1s and moves the above rows one row down.
@@ -175,27 +188,49 @@ void board_print( void ){
   for( uint8_t i=0; i<BOARD_ROW_SIZE; i++ ){
     for( uint8_t j=0; j<BOARD_COL_SIZE; j++ ){
       if( i == ( BOARD_ROW_SIZE - 1 ) ){
-        if( j == ( BOARD_COL_SIZE - 1 ) ){
-          break;
-        }
-        LOG_GAME( " %c", GAME_CONFIG_PRINT_BOARD_H_BORDER_CHAR );
+        LOG_GAME( GAME_PRINT_COLOR_RESET"* " );
       }
       else{
         if( j == 0 ){
-          LOG_GAME( "%c", GAME_CONFIG_PRINT_BOARD_V_BORDER_CHAR );
+          LOG_GAME( GAME_PRINT_COLOR_RESET"*|" );
         }
         else if( j == ( BOARD_COL_SIZE - 1 ) ){
-          LOG_GAME( "%c\n", GAME_CONFIG_PRINT_BOARD_V_BORDER_CHAR );
+          LOG_GAME( GAME_PRINT_COLOR_RESET"*\n" );
         }
         else{
-          if( board[i][j] != 0 )
-            LOG_GAME( "%c ", p_current_piece->print_char );
-          else
-            LOG_GAME( "%c%c", GAME_CONFIG_PRINT_BOARD_ROW_SEP_CHAR, GAME_CONFIG_PRINT_BOARD_COL_SEP_CHAR );
+          if( board[i][j] != 0 ){
+            switch( board_color[i][j] ){
+              case GAME_PIECE_COLOR_MAGENTA:
+                LOG_GAME( GAME_PRINT_COLOR_MAGENTA"#"GAME_PRINT_COLOR_RESET"|" );
+                break;
+              case GAME_PIECE_COLOR_RED:
+                LOG_GAME( GAME_PRINT_COLOR_RED"#"GAME_PRINT_COLOR_RESET"|" );
+                break;
+              case GAME_PIECE_COLOR_YELLOW:
+                LOG_GAME( GAME_PRINT_COLOR_YELLOW"#"GAME_PRINT_COLOR_RESET"|" );
+                break;
+              case GAME_PIECE_COLOR_GREEN:
+                LOG_GAME( GAME_PRINT_COLOR_GREEN"#"GAME_PRINT_COLOR_RESET"|" );
+                break;
+              case GAME_PIECE_COLOR_CYAN:
+                LOG_GAME( GAME_PRINT_COLOR_CYAN"#"GAME_PRINT_COLOR_RESET"|" );
+                break;
+              case GAME_PIECE_COLOR_BLUE:
+                LOG_GAME( GAME_PRINT_COLOR_BLUE"#"GAME_PRINT_COLOR_RESET"|" );
+                break;
+              default:
+                LOG_GAME( GAME_PRINT_COLOR_RESET"#|" );
+                break;
+            }
+          }
+          else{
+            LOG_GAME( GAME_PRINT_COLOR_RESET"_|" );
+          }
         }
       }
     }
   }
+
   LOG_GAME( "\n" );
 }
 
@@ -245,10 +280,17 @@ void add_new_piece_to_board( uint8_t type ){
   for( i=piece_start_row; i<current_piece.order; i++ ){
     for( j=0; j<current_piece.order; j++ ){
       piece_idx = ( current_piece.order * i ) + j;
+
       board[board_row_idx][start_col + j] = current_piece.shape[piece_idx];
+      
+      if( current_piece.shape[piece_idx] != 0 ){
+        board_color[board_row_idx][start_col + j] = current_piece.print_color;
+      }
     }
     board_row_idx++;
   }
+
+  piece_count++;
 }
 
 
@@ -276,7 +318,7 @@ int8_t move_current_piece_through_board( uint8_t direction ){
 void rotate_current_piece_through_board( void ){
   _remove_current_piece_from_board();
   piece_rotate_90deg( p_current_piece );
-  _set_current_piece_value_to_board( 1 );
+  _set_current_piece_value_to_board( 1, false );
 }
 
 
@@ -285,7 +327,7 @@ uint8_t fix_current_piece_on_board( void ){
     return TETRIS_RET_ERR_NO_PIECE;
 
   if( !current_piece.is_moving ){
-    _set_current_piece_value_to_board( 1 );
+    _set_current_piece_value_to_board( 1, false );
     p_current_piece = NULL;
     return TETRIS_RET_READY;
   }
@@ -302,33 +344,50 @@ uint8_t fix_current_piece_on_board( void ){
 }
 
 
-bool check_complete_row( void ){
+uint8_t check_complete_row( void ){
   uint8_t seg_count = 0;  // segment sum
+  uint8_t win_count = 0;  // win check
+  uint8_t piece_row = 0;  // corresponding row in piece shape
+  uint8_t piece_col = 0;  // corresponding col in piece shape
+  uint8_t piece_idx = 0;  // corresponding col in piece shape
 
-  /* Check for game over condition (at least one column full of 1) */
+  /* Check for game over condition (first row with at least a 1, current piece doesn't count) */
   for( uint8_t j=1; j<(BOARD_COL_SIZE-1); j++ ){    // discard first and last col (borders)
-    seg_count = 0;
+    if( board[0][j] != 0 &&                                               // there is a 1 in the baord
+        p_current_piece->position_col <= j &&                             // col j is in between the piece horizontal length
+        ( p_current_piece->position_col + p_current_piece->order) > j ){
+      piece_row = p_current_piece->position_row + p_current_piece->order;
+      piece_col = j - p_current_piece->position_col;
+      piece_idx = ( p_current_piece->order * piece_row ) + piece_col;
 
-    for( uint8_t i=0; i<(BOARD_ROW_SIZE-1); i++ ){  // discard last row (border)
-      seg_count += board[i][j];
-    }
-
-    if( seg_count >= ( BOARD_ROW_SIZE - 2 ) ){
-      return TETRIS_GAME_OVER;
+      if( p_current_piece->shape[piece_idx] == 0 ){  // the piece is not "causing" the 1 in the board, so it is a previous piece
+        return TETRIS_GAME_OVER;
+      }
     }
   }
 
   /* Check for game score condition (rows full of 1) */
-  for( uint8_t i=1; i<(BOARD_ROW_SIZE-1); i++ ){    // discard first and last row (game over and border)
+  for( uint8_t i=(BOARD_ROW_SIZE-2); i>=1; i-- ){   // discard first and last row (game over and border)
     seg_count = 0;
 
     for( uint8_t j=1; j<(BOARD_COL_SIZE-1); j++ ){  // discard first and last col (borders)
-      seg_count += board[i][j];
+      if( board[i][j] == 0 ){
+        break;
+      }
+      else{
+        win_count++;
+        seg_count += board[i][j];
+      }
     }
 
     if( seg_count >= ( BOARD_COL_SIZE - 2 ) ){
       BOARD_AREA_T area = { i, 1, i, ( BOARD_COL_SIZE - 1 ) };
       _clear_complete_row( &area );
+      score_increment( 0 );
+    }
+
+    if( win_count == 0 && piece_count > 1 ){
+      return TETRIS_GAME_WON;
     }
   }
 
@@ -364,11 +423,11 @@ static void _clear_board_entirely( void ){
 
 
 static void _remove_current_piece_from_board( void ){
-  _set_current_piece_value_to_board( 0 );
+  _set_current_piece_value_to_board( 0, true );
 }
 
 
-static void _set_current_piece_value_to_board( uint8_t value ){
+static void _set_current_piece_value_to_board( uint8_t value, bool reset_color ){
   uint8_t piece_idx = 0;
   uint8_t piece_row = 0;
   uint8_t board_row = 0;
@@ -383,7 +442,8 @@ static void _set_current_piece_value_to_board( uint8_t value ){
       board_col = current_piece.position_col + j;
 
       if( current_piece.shape[piece_idx] != 0 ){
-        board[board_row][board_col] = value;
+        board[board_row][board_col]       = value;
+        board_color[board_row][board_col] = ( reset_color ? GAME_PIECE_COLOR_RESET : current_piece.print_color );
       }
     }
   }
@@ -549,7 +609,12 @@ static int8_t _move_current_piece( uint8_t direction ){
         for( uint8_t j=0; j<current_piece.order; j++ ){
           offset_col = current_piece.position_col + j;
           piece_idx  = (current_piece.order * i) + j;
+
           board[offset_row][offset_col] += current_piece.shape[piece_idx];
+
+          if( current_piece.shape[piece_idx] != 0 ){
+            board_color[offset_row][offset_col] = current_piece.print_color;
+          }
         }
         offset_row++;
       }
@@ -565,25 +630,19 @@ static int8_t _move_current_piece( uint8_t direction ){
 
     case BOARD_DIRECTION_RIGHT:
     {
-      // if( (int8_t) current_piece.position_col + horizontal_direction <= 0 ||
-      //              current_piece.position_col + horizontal_direction >= ( BOARD_COL_SIZE - 1 ) ){
-      //   printf( "aaaaaaaaa\n" );
-      //   return TETRIS_RET_ERR;  // error
-      // }
-
       uint8_t piece_start_row = current_piece.order - current_piece.displayed_rows;
-      // uint8_t piece_start_col;
-
-      // if( current_piece.displayed_cols != current_piece.order ){
-      //   piece_start_col = 
-      // }
       offset_row = current_piece.position_row;
 
       for( uint8_t i=piece_start_row; i<current_piece.order; i++ ){
         for( uint8_t j=0; j<current_piece.displayed_cols; j++ ){
           offset_col = current_piece.position_col + j + horizontal_direction;
           piece_idx  = ( current_piece.order * i ) + j;
+
           board[offset_row][offset_col] += current_piece.shape[piece_idx];
+
+          if( current_piece.shape[piece_idx] != 0 ){
+            board_color[offset_row][offset_col] = current_piece.print_color;
+          }
         }
         offset_row++;
       }

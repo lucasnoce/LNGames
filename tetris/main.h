@@ -27,8 +27,9 @@
 #define TETRIS_RET_ERR_NO_PIECE -2
 #define TETRIS_RET_READY        -3  // ready for new piece
 
-#define TETRIS_GAME_OVER     true
-#define TETRIS_GAME_NOT_OVER false
+#define TETRIS_GAME_OVER     0
+#define TETRIS_GAME_NOT_OVER 1
+#define TETRIS_GAME_WON      2
 
 /* ==========================================================================================================
  * Includes
