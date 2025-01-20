@@ -18,7 +18,7 @@
 
 static volatile uint32_t game_score = 0;
 
-static const uint8_t score_table[GAME_SPEED_LAST_IDX] = {
+static const uint32_t score_table[GAME_SPEED_LAST_IDX] = {
   10,
   20,
   40,

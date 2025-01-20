@@ -4,9 +4,12 @@ My (simpler) version of the classic game. Inspired by Javier López ideas, but c
 
 To do list:
 - Easy part:
-  - Periodically move the new piece down
-  - "Fix" the piece on its last state
+  - ~[Done] Periodically move the new piece down~
+  - ~[Done] "Fix" the piece on its last state~
   - ~[Done] Add keyboard inputs~
-  - Score when full row
+  - ~[Done] Score when full row~
+  - Add difficulty levels
+  - Add menu
+  - Each piece with a different color
 - Further development:
-  - Add proper graphics
+  - Add proper graphics, with SDL or SFML for example
