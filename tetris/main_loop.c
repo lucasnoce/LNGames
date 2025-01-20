@@ -170,8 +170,6 @@ DWORD WINAPI _graphics_thread( void *data ){
       return 1;
     }
 
-    // graphics_print_score();
-    
     LOG_DBG( "Graphics %u\n", i++ );
     current_time_ms = _get_current_time_ms();
     Sleep( GAME_CONFIG_BOARD_REPOSITION_MS - ( current_time_ms - last_time_ms ) );
