@@ -105,7 +105,13 @@ static inline bool _piece_is_segment_empty( PIECE_STRUCT_T *p_piece, uint8_t seg
  */
 
 
-uint8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece ){
+int8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece ){
+  if( p_piece == NULL )
+    return TETRIS_RET_ERR_NO_PIECE;
+  
+  p_piece->is_colliding = false;
+  p_piece->is_moving    = true;
+  
   switch( type ){
     case PIECE_SHAPE_SQUARE:
       p_piece->order = PIECE_SQUARE_MATRIX_ORDER;
@@ -158,10 +164,13 @@ uint8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece ){
 }
 
 
-void piece_rotate_90deg( PIECE_STRUCT_T *p_piece ){
+int8_t piece_rotate_90deg( PIECE_STRUCT_T *p_piece ){
   piece_shape_t temp[PIECE_LARGEST_SIZE] = { 0 };
   uint8_t temp_idx = 0;
   uint8_t piece_idx = 0;
+
+  if( p_piece == NULL )
+    return TETRIS_RET_ERR_NO_PIECE;
 
   for( uint8_t i=0; i<p_piece->order; i++ ){
     for( uint8_t j=0; j<p_piece->order; j++ ){
@@ -174,11 +183,16 @@ void piece_rotate_90deg( PIECE_STRUCT_T *p_piece ){
   for( uint8_t i=0; i<p_piece->size; i++ ){
     p_piece->shape[i] = temp[i];
   }
+
+  return TETRIS_RET_OK;
 }
 
 
-void piece_print( PIECE_STRUCT_T *p_piece ){
+int8_t piece_print( PIECE_STRUCT_T *p_piece ){
   uint8_t piece_idx = 0;
+
+  if( p_piece == NULL )
+    return TETRIS_RET_ERR_NO_PIECE;
 
   for( uint8_t i=0; i<p_piece->order; i++ ){
     for( uint8_t j=0; j<p_piece->order; j++ ){
@@ -189,6 +203,8 @@ void piece_print( PIECE_STRUCT_T *p_piece ){
         LOG_GAME( "%u, ", p_piece->shape[piece_idx] );
     }
   }
+
+  return TETRIS_RET_OK;
 }
 
 

@@ -13,11 +13,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 #include <conio.h>
 #include <windows.h>
 
 #include "main.h"
 #include "graphics.h"
+#include "board.h"
 
 
 /* ==========================================================================================================
@@ -27,7 +29,12 @@
 #define GAME_MOVE_DOWN_CHAR   's'
 #define GAME_MOVE_LEFT_CHAR   'a'
 #define GAME_MOVE_RIGHT_CHAR  'd'
+#define GAME_ROTATE_CHAR      'r'
 #define GAME_QUIT_CHAR        'q'
+
+#define GAME_CONFIG_KEY_SAMPLE_RATE_MS    10
+#define GAME_CONFIG_BOARD_REPOSITION_MS   ( (uint64_t) 1000 )
+#define GAME_CONFIG_PLAYER_MOVE_DELAY_MS  250
 
 /* ==========================================================================================================
  * Static Typedefs
@@ -37,12 +44,14 @@
  * Static variables
  */
 
+
 /* ==========================================================================================================
  * Static Function Prototypes
  */
 
 DWORD WINAPI _key_input_thread( void *data );
 DWORD WINAPI _graphics_thread( void *data );
+static uint64_t _get_current_time_ms( void );
 
 
 /* ==========================================================================================================
@@ -55,7 +64,11 @@ int main_loop_init( void ){
     CreateThread( NULL, 0, _graphics_thread, NULL, 0, NULL )
   };
 
-  LOG_DBG("size: %lld\n", sizeof(threads)/8);
+  uint8_t ret = graphics_init();
+  if( ret != 0 )
+    return 1;
+
+  LOG_INF("size: %lld\n", sizeof(threads)/8);
 
   uint8_t thread_count = sizeof(threads) / 8;
   for( uint8_t i=0; i<thread_count; i++ ){
@@ -83,6 +96,7 @@ int main_loop_init( void ){
     }
   }
 
+  graphics_deinit();
   for( uint8_t i=0; i<thread_count; i++ ){
     CloseHandle(threads[i]);
   }
@@ -101,16 +115,31 @@ DWORD WINAPI _key_input_thread( void *data ){
   while( 1 ){
     if( _kbhit() ) {
       key = _getch();
-      LOG_DBG( "You pressed: %c\n", key );
+      LOG_INF( "You pressed: %c\n", key );
 
       switch( key ){
         case GAME_MOVE_DOWN_CHAR:
+          move_current_piece_through_board( BOARD_DIRECTION_DOWN );
+          graphics_print_game();
+          Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
         case GAME_MOVE_LEFT_CHAR:
+          move_current_piece_through_board( BOARD_DIRECTION_LEFT );
+          graphics_print_game();
+          Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
         case GAME_MOVE_RIGHT_CHAR:
+          move_current_piece_through_board( BOARD_DIRECTION_RIGHT );
+          graphics_print_game();
+          Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
+          break;
+
+        case GAME_ROTATE_CHAR:
+          rotate_current_piece_through_board();
+          graphics_print_game();
+          Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
         case GAME_QUIT_CHAR:
@@ -118,26 +147,42 @@ DWORD WINAPI _key_input_thread( void *data ){
           return 1;
 
         default:
+          Sleep( GAME_CONFIG_KEY_SAMPLE_RATE_MS );
           break;
       }
     }
-
-    Sleep( 1 );
   }
 
   return 0;
 }
 
 DWORD WINAPI _graphics_thread( void *data ){
+  uint64_t last_time_ms    = 0;
+  uint64_t current_time_ms = 0;
   uint16_t i = 0;
-  graphics_init();
   
   while( 1 ){
-    graphics_clear_screen();
-    graphics_print_game();
+    last_time_ms = _get_current_time_ms();
+    
+    // graphics_clear_screen();
+
+    if( graphics_print_game() != TETRIS_RET_OK ){
+      return 1;
+    }
+
+    // graphics_print_score();
+    
     LOG_DBG( "Graphics %u\n", i++ );
-    Sleep( 1000 );
+    current_time_ms = _get_current_time_ms();
+    Sleep( GAME_CONFIG_BOARD_REPOSITION_MS - ( current_time_ms - last_time_ms ) );
   }
 
   return 0;
+}
+
+
+static uint64_t _get_current_time_ms( void ){
+  struct timespec ts;
+  clock_gettime( CLOCK_MONOTONIC, &ts ); // Use CLOCK_REALTIME if wall-clock time is needed
+  return (uint64_t) ( ( ts.tv_sec ) * 1000 ) + ( ts.tv_nsec / 1000000 );
 }
