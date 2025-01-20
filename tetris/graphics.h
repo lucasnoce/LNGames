@@ -13,9 +13,9 @@
 #define _GRAPHICS_H_
 
 
-void graphics_init( void );
+uint8_t graphics_init( void );
+void graphics_deinit( void );
 void graphics_clear_screen( void );
 uint8_t graphics_print_game( void );
-
 
 #endif /* _GRAPHICS_H_ */

@@ -33,8 +33,8 @@
   3 0 0 ... 0 3
   3 3 3 ... 3 3
 */
-#define BOARD_PLAYABLE_ROW_SIZE   8
-#define BOARD_PLAYABLE_COL_SIZE   12
+#define BOARD_PLAYABLE_ROW_SIZE   20
+#define BOARD_PLAYABLE_COL_SIZE   15
 
 #define BOARD_PLAYABLE_OFFSET     PIECE_LARGEST_MATRIX_ORDER
 #define BOARD_PLAYABLE_START_ROW  BOARD_PLAYABLE_OFFSET
@@ -258,6 +258,14 @@ int8_t move_current_piece_through_board( uint8_t direction ){
 
   // return TETRIS_RET_OK;
 }
+
+
+void rotate_current_piece_through_board( void ){
+  _remove_current_piece_from_board();
+  piece_rotate_90deg( p_current_piece );
+  _set_current_piece_value_to_board( 1 );
+}
+
 
 uint8_t fix_current_piece_on_board( void ){
   if( p_current_piece == NULL )

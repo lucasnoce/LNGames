@@ -29,6 +29,7 @@
 #define GAME_MOVE_DOWN_CHAR   's'
 #define GAME_MOVE_LEFT_CHAR   'a'
 #define GAME_MOVE_RIGHT_CHAR  'd'
+#define GAME_ROTATE_CHAR      'r'
 #define GAME_QUIT_CHAR        'q'
 
 #define GAME_CONFIG_KEY_SAMPLE_RATE_MS    10
@@ -42,6 +43,7 @@
 /* ==========================================================================================================
  * Static variables
  */
+
 
 /* ==========================================================================================================
  * Static Function Prototypes
@@ -61,6 +63,10 @@ int main_loop_init( void ){
     CreateThread( NULL, 0, _key_input_thread, NULL, 0, NULL ),
     CreateThread( NULL, 0, _graphics_thread, NULL, 0, NULL )
   };
+
+  uint8_t ret = graphics_init();
+  if( ret != 0 )
+    return 1;
 
   LOG_INF("size: %lld\n", sizeof(threads)/8);
 
@@ -90,6 +96,7 @@ int main_loop_init( void ){
     }
   }
 
+  graphics_deinit();
   for( uint8_t i=0; i<thread_count; i++ ){
     CloseHandle(threads[i]);
   }
@@ -113,16 +120,25 @@ DWORD WINAPI _key_input_thread( void *data ){
       switch( key ){
         case GAME_MOVE_DOWN_CHAR:
           move_current_piece_through_board( BOARD_DIRECTION_DOWN );
+          graphics_print_game();
           Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
         case GAME_MOVE_LEFT_CHAR:
           move_current_piece_through_board( BOARD_DIRECTION_LEFT );
+          graphics_print_game();
           Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
         case GAME_MOVE_RIGHT_CHAR:
           move_current_piece_through_board( BOARD_DIRECTION_RIGHT );
+          graphics_print_game();
+          Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
+          break;
+
+        case GAME_ROTATE_CHAR:
+          rotate_current_piece_through_board();
+          graphics_print_game();
           Sleep( GAME_CONFIG_PLAYER_MOVE_DELAY_MS );
           break;
 
@@ -144,16 +160,17 @@ DWORD WINAPI _graphics_thread( void *data ){
   uint64_t last_time_ms    = 0;
   uint64_t current_time_ms = 0;
   uint16_t i = 0;
-  graphics_init();
   
   while( 1 ){
     last_time_ms = _get_current_time_ms();
     
-    graphics_clear_screen();
+    // graphics_clear_screen();
 
     if( graphics_print_game() != TETRIS_RET_OK ){
       return 1;
     }
+
+    // graphics_print_score();
     
     LOG_DBG( "Graphics %u\n", i++ );
     current_time_ms = _get_current_time_ms();

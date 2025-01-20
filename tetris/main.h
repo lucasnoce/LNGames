@@ -20,7 +20,7 @@
  * Definitions
  */
 
-#define LOG_LEVEL LOG_LEVEL_INF
+#define LOG_LEVEL LOG_LEVEL_GAME
 
 #define TETRIS_RET_OK            0
 #define TETRIS_RET_ERR          -1
