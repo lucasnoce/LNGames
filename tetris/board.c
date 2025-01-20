@@ -165,6 +165,7 @@ static int8_t _move_current_piece( uint8_t direction );
  */
 
 void board_init( void ){
+  score_init();
   _clear_board_entirely();
 
   /* Board has U-shaped border */
@@ -326,8 +327,9 @@ uint8_t fix_current_piece_on_board( void ){
   if( p_current_piece == NULL )
     return TETRIS_RET_ERR_NO_PIECE;
 
-  if( !current_piece.is_moving ){
+  if( !current_piece.is_moving ){  // fix the piece
     _set_current_piece_value_to_board( 1, false );
+    score_increment_fix_piece();
     p_current_piece = NULL;
     return TETRIS_RET_READY;
   }
@@ -383,7 +385,7 @@ uint8_t check_complete_row( void ){
     if( seg_count >= ( BOARD_COL_SIZE - 2 ) ){
       BOARD_AREA_T area = { i, 1, i, ( BOARD_COL_SIZE - 1 ) };
       _clear_complete_row( &area );
-      score_increment( 0 );
+      score_increment_complete_row();
     }
 
     if( win_count == 0 && piece_count > 1 ){

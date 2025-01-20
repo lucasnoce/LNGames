@@ -22,7 +22,7 @@
 #include "graphics.h"
 
 
-static HANDLE hMutex;
+static HANDLE h_graphics_mutex;
 
 static char *game_over_text[] = {
 "  _______      ___      .___  ___.  _______          ",
@@ -62,10 +62,10 @@ static void _graphics_print_you_win( void );
 
 
 uint8_t graphics_init( void ){
-  hMutex = CreateMutex(NULL, FALSE, NULL);
+  h_graphics_mutex = CreateMutex(NULL, FALSE, NULL);
 
-  if( hMutex == NULL ){
-    printf("Failed to create mutex. Error: %lu\n", GetLastError());
+  if( h_graphics_mutex == NULL ){
+    printf("Failed to create h_graphics_mutex. Error: %lu\n", GetLastError());
     return 1;
   }
   
@@ -76,7 +76,7 @@ uint8_t graphics_init( void ){
 }
 
 void graphics_deinit( void ){
-  CloseHandle( hMutex );
+  CloseHandle( h_graphics_mutex );
 }
 
 
@@ -97,7 +97,7 @@ void graphics_clear_screen( void ){
 
 
 uint8_t graphics_print_game( bool try_fix ){
-  WaitForSingleObject(hMutex, INFINITE);
+  WaitForSingleObject( h_graphics_mutex, INFINITE );
 
   graphics_clear_screen();
 
@@ -135,7 +135,7 @@ uint8_t graphics_print_game( bool try_fix ){
   board_print();
   score_print();
 
-  ReleaseMutex(hMutex);
+  ReleaseMutex( h_graphics_mutex );
   return TETRIS_RET_OK;
 }
 

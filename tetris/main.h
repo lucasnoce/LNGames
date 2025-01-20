@@ -31,6 +31,8 @@
 #define TETRIS_GAME_NOT_OVER 1
 #define TETRIS_GAME_WON      2
 
+#define TETRIS_GAME_INCREMENT_SPEED_DELAY_MS  5000
+
 /* ==========================================================================================================
  * Includes
  */
