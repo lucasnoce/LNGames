@@ -7,6 +7,10 @@
     "board.h": "c",
     "main_loop.h": "c",
     "format": "c",
-    "windows.h": "c"
+    "windows.h": "c",
+    "array": "c",
+    "string_view": "c",
+    "initializer_list": "c",
+    "span": "c"
   }
 }

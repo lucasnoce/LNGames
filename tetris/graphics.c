@@ -103,19 +103,30 @@ uint8_t graphics_print_game( bool try_fix ){
 
   if( try_fix ){
     if( fix_current_piece_on_board() != TETRIS_RET_OK ){
-      uint8_t new_piece_type = 0;
-
-      if( check_complete_row() == TETRIS_GAME_OVER ){
+      uint8_t new_piece_param = 0;
+      int8_t ret = 0;
+      
+      ret = check_complete_row();
+      if( ret == TETRIS_GAME_OVER ){
         _graphics_print_game_over();
+        return -TETRIS_RET_ERR;
+      }
+      else if( ret == TETRIS_GAME_WON ){
+        _graphics_print_you_win();
         return -TETRIS_RET_ERR;
       }
 
       LOG_INF( "fix piece\n" );
 
       srand( time( NULL ) );
-      new_piece_type = rand() % PIECE_SHAPE_LAST_IDX;
+      new_piece_param = rand() % PIECE_SHAPE_LAST_IDX;
       
-      add_new_piece_to_board( new_piece_type );
+      add_new_piece_to_board( new_piece_param );
+
+      new_piece_param = rand() % 4;
+      for( uint8_t i=0; i<new_piece_param; i++ ){
+        rotate_current_piece_through_board();
+      }
     }
 
     move_current_piece_through_board( BOARD_DIRECTION_DOWN );

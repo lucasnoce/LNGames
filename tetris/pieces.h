@@ -102,6 +102,8 @@ typedef struct PIECE_STRUCT_TAG{
   uint8_t displayed_cols;
   int8_t  position_row;
   int8_t  position_col;
+  uint8_t print_color;
+  char print_char;
   bool is_colliding;
   bool is_moving;
   piece_shape_t shape[PIECE_LARGEST_SIZE];

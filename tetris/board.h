@@ -119,8 +119,8 @@ uint8_t fix_current_piece_on_board( void );
 
   @param        none
 
-  @returns      void
+  @returns      TETRIS_GAME_OVER, TETRIS_GAME_NOT_OVER or TETRIS_GAME_WON.
 */
-bool check_complete_row( void );
+uint8_t check_complete_row( void );
 
 #endif /* _BOARD_H_ */
