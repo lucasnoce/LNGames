@@ -15,6 +15,7 @@
 #include <stdbool.h>
 
 #include "main.h"
+#include "game_config.h"
 #include "pieces.h"
 #include "board.h"
 
@@ -173,17 +174,29 @@ void board_init( void ){
 void board_print( void ){
   for( uint8_t i=0; i<BOARD_ROW_SIZE; i++ ){
     for( uint8_t j=0; j<BOARD_COL_SIZE; j++ ){
-      if( j == ( BOARD_COL_SIZE - 1 ) ){
-        LOG_GAME( "%u\n", board[i][j] );
+      if( i == ( BOARD_ROW_SIZE - 1 ) ){
+        if( j == ( BOARD_COL_SIZE - 1 ) ){
+          break;
+        }
+        LOG_GAME( " %c", GAME_CONFIG_PRINT_BOARD_H_BORDER_CHAR );
       }
       else{
-        if( board[i][j] != 0 )
-          LOG_GAME( "%u ", board[i][j] );
-        else
-          LOG_GAME( "_|" );
+        if( j == 0 ){
+          LOG_GAME( "%c", GAME_CONFIG_PRINT_BOARD_V_BORDER_CHAR );
+        }
+        else if( j == ( BOARD_COL_SIZE - 1 ) ){
+          LOG_GAME( "%c\n", GAME_CONFIG_PRINT_BOARD_V_BORDER_CHAR );
+        }
+        else{
+          if( board[i][j] != 0 )
+            LOG_GAME( "%c ", p_current_piece->print_char );
+          else
+            LOG_GAME( "%c%c", GAME_CONFIG_PRINT_BOARD_ROW_SEP_CHAR, GAME_CONFIG_PRINT_BOARD_COL_SEP_CHAR );
+        }
       }
     }
   }
+  LOG_GAME( "\n" );
 }
 
 

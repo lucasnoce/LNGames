@@ -18,6 +18,7 @@
 #include <windows.h>
 
 #include "main.h"
+#include "game_config.h"
 #include "graphics.h"
 #include "board.h"
 
@@ -26,15 +27,7 @@
  * Definitions
  */
 
-#define GAME_MOVE_DOWN_CHAR   's'
-#define GAME_MOVE_LEFT_CHAR   'a'
-#define GAME_MOVE_RIGHT_CHAR  'd'
-#define GAME_ROTATE_CHAR      'r'
-#define GAME_QUIT_CHAR        'q'
 
-#define GAME_CONFIG_KEY_SAMPLE_RATE_MS    10
-#define GAME_CONFIG_BOARD_REPOSITION_MS   ( (uint64_t) 1000 )
-#define GAME_CONFIG_PLAYER_MOVE_DELAY_MS  250
 
 /* ==========================================================================================================
  * Static Typedefs

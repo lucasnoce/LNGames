@@ -1,5 +1,5 @@
 /*
- *  graphics.c
+ *  graphics.h
  *
  *  Created on: 16-Jan-2025
  *      Author: lucas-noce

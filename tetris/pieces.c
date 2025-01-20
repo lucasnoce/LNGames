@@ -15,6 +15,7 @@
 #include <stdbool.h>
 
 #include "main.h"
+#include "game_config.h"
 #include "pieces.h"
 
 
@@ -114,44 +115,51 @@ int8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece ){
   
   switch( type ){
     case PIECE_SHAPE_SQUARE:
-      p_piece->order = PIECE_SQUARE_MATRIX_ORDER;
-      p_piece->size  = PIECE_SQUARE_SIZE;
+      p_piece->order      = PIECE_SQUARE_MATRIX_ORDER;
+      p_piece->size       = PIECE_SQUARE_SIZE;
+      p_piece->print_char = GAME_CONFIG_PRINT_BOARD_PIECE_SQUARE_CHAR;
       _piece_copy_shape( p_piece, piece_square, p_piece->size );
       break;
 
     case PIECE_SHAPE_T:
-      p_piece->order = PIECE_T_MATRIX_ORDER;
-      p_piece->size  = PIECE_T_SIZE;
+      p_piece->order      = PIECE_T_MATRIX_ORDER;
+      p_piece->size       = PIECE_T_SIZE;
+      p_piece->print_char = GAME_CONFIG_PRINT_BOARD_PIECE_T_CHAR;
       _piece_copy_shape( p_piece, piece_T, p_piece->size );
       break;
 
     case PIECE_SHAPE_LINE:
-      p_piece->order = PIECE_LINE_MATRIX_ORDER;
-      p_piece->size  = PIECE_LINE_SIZE;
+      p_piece->order      = PIECE_LINE_MATRIX_ORDER;
+      p_piece->size       = PIECE_LINE_SIZE;
+      p_piece->print_char = GAME_CONFIG_PRINT_BOARD_PIECE_LINE_CHAR;
       _piece_copy_shape( p_piece, piece_line, p_piece->size );
       break;
 
     case PIECE_SHAPE_Z:
-      p_piece->order = PIECE_Z_MATRIX_ORDER;
-      p_piece->size  = PIECE_Z_SIZE;
+      p_piece->order      = PIECE_Z_MATRIX_ORDER;
+      p_piece->size       = PIECE_Z_SIZE;
+      p_piece->print_char = GAME_CONFIG_PRINT_BOARD_PIECE_Z_CHAR;
       _piece_copy_shape( p_piece, piece_Z, p_piece->size );
       break;
 
     case PIECE_SHAPE_Z_FLIPPED:
-      p_piece->order = PIECE_Z_FLIPPED_MATRIX_ORDER;
-      p_piece->size  = PIECE_Z_FLIPPED_SIZE;
+      p_piece->order      = PIECE_Z_FLIPPED_MATRIX_ORDER;
+      p_piece->size       = PIECE_Z_FLIPPED_SIZE;
+      p_piece->print_char = GAME_CONFIG_PRINT_BOARD_PIECE_Z_FLIPPED_CHAR;
       _piece_copy_shape( p_piece, piece_Z_flipped, p_piece->size );
       break;
 
     case PIECE_SHAPE_L:
-      p_piece->order = PIECE_L_MATRIX_ORDER;
-      p_piece->size  = PIECE_L_SIZE;
+      p_piece->order      = PIECE_L_MATRIX_ORDER;
+      p_piece->size       = PIECE_L_SIZE;
+      p_piece->print_char = GAME_CONFIG_PRINT_BOARD_PIECE_L_CHAR;
       _piece_copy_shape( p_piece, piece_L, p_piece->size );
       break;
 
     case PIECE_SHAPE_L_FLIPPED:
-      p_piece->order = PIECE_L_FLIPPED_MATRIX_ORDER;
-      p_piece->size  = PIECE_L_FLIPPED_SIZE;
+      p_piece->order      = PIECE_L_FLIPPED_MATRIX_ORDER;
+      p_piece->size       = PIECE_L_FLIPPED_SIZE;
+      p_piece->print_char = GAME_CONFIG_PRINT_BOARD_PIECE_L_FLIPPED_CHAR;
       _piece_copy_shape( p_piece, piece_L_flipped, p_piece->size );
       break;
 
