@@ -55,6 +55,8 @@
 #define BOARD_H_DISPLACEMENT_RIGHT  ( (int8_t)  1 )
 #define BOARD_H_DISPLACEMENT_LEFT   ( (int8_t) -1 )
 
+#define BOARD_PIECE_ROTATION_MAX_TRY_COUNT 3
+
 #define GAME_PRINT_COLOR_MAGENTA "\033[1;35m"
 #define GAME_PRINT_COLOR_RED     "\033[1;31m"
 #define GAME_PRINT_COLOR_YELLOW  "\033[1;33m"
@@ -87,7 +89,7 @@ static board_region_t board_color[BOARD_ROW_SIZE][BOARD_COL_SIZE] = { 0 };
 static PIECE_STRUCT_T current_piece;
 static PIECE_STRUCT_T *p_current_piece;
 
-static uint32_t piece_count = 0;;
+static uint32_t piece_count = 0;
 
 
 /* ==========================================================================================================
@@ -316,9 +318,37 @@ int8_t move_current_piece_through_board( uint8_t direction ){
 }
 
 
-void rotate_current_piece_through_board( void ){
+/*! TODO: debug */
+void rotate_current_piece_through_board( bool clockwise ){
+  uint8_t try_count = 0;
+
   _remove_current_piece_from_board();
-  piece_rotate_90deg( p_current_piece );
+  piece_rotate_90deg( p_current_piece, clockwise );
+
+  if( _check_current_piece_collision( BOARD_DIRECTION_DOWN ) != BOARD_NO_COLLISION ){  // if will collide at the bottom, do not rotate
+    piece_rotate_90deg( p_current_piece, !clockwise );
+  }
+  else{
+    while( _check_current_piece_collision( BOARD_DIRECTION_LEFT ) != BOARD_NO_COLLISION ){  // if will collide laterally, try repositioning the piece
+      if( try_count++ >= 1 ){
+        piece_rotate_90deg( p_current_piece, !clockwise );
+        _set_current_piece_value_to_board( 1, false );
+        return;
+      }
+      _move_current_piece( BOARD_DIRECTION_RIGHT );
+    }
+    
+    try_count = 0;
+    while( _check_current_piece_collision( BOARD_DIRECTION_RIGHT ) != BOARD_NO_COLLISION ){
+      if( try_count++ >= 1 ){
+        piece_rotate_90deg( p_current_piece, !clockwise );
+        _set_current_piece_value_to_board( 1, false );
+        return;
+      }
+      _move_current_piece( BOARD_DIRECTION_LEFT );
+    }
+  }
+
   _set_current_piece_value_to_board( 1, false );
 }
 
@@ -387,10 +417,10 @@ uint8_t check_complete_row( void ){
       _clear_complete_row( &area );
       score_increment_complete_row();
     }
+  }
 
-    if( win_count == 0 && piece_count > 1 ){
-      return TETRIS_GAME_WON;
-    }
+  if( win_count == 0 && piece_count > 1 ){
+    return TETRIS_GAME_WON;
   }
 
   return TETRIS_GAME_NOT_OVER;

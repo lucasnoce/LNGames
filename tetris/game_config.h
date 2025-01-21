@@ -23,11 +23,12 @@
 #define GAME_PIECE_COLOR_BLUE     6
 #define GAME_PIECE_COLOR_COUNT    7
 
-#define GAME_MOVE_DOWN_CHAR   's'
-#define GAME_MOVE_LEFT_CHAR   'a'
-#define GAME_MOVE_RIGHT_CHAR  'd'
-#define GAME_ROTATE_CHAR      'r'
-#define GAME_QUIT_CHAR        'q'
+#define GAME_MOVE_DOWN_CHAR                 's'
+#define GAME_MOVE_LEFT_CHAR                 'a'
+#define GAME_MOVE_RIGHT_CHAR                'd'
+#define GAME_ROTATE_CLOCKWISE_CHAR          'k'
+#define GAME_ROTATE_COUNTER_CLOCKWISE_CHAR  'j'
+#define GAME_QUIT_CHAR                      'q'
 
 #define GAME_CONFIG_KEY_SAMPLE_RATE_MS    10
 #define GAME_CONFIG_BOARD_REPOSITION_MS   ( (uint64_t) 800 )

@@ -159,8 +159,13 @@ DWORD WINAPI _key_input_thread( void *data ){
           graphics_print_game( false );
           break;
 
-        case GAME_ROTATE_CHAR:
-          rotate_current_piece_through_board();
+        case GAME_ROTATE_CLOCKWISE_CHAR:
+          rotate_current_piece_through_board( true );
+          graphics_print_game( false );
+          break;
+
+        case GAME_ROTATE_COUNTER_CLOCKWISE_CHAR:
+          rotate_current_piece_through_board( false );
           graphics_print_game( false );
           break;
 

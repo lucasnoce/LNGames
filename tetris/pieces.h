@@ -128,10 +128,11 @@ int8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece );
   @brief        Rotate a piece 90 degrees clockwise around its center.
 
   @param[in]    p_piece: pointer to the piece to be rotated.
+  @param[in]    clockwise: which direction to rotate (true = clockwise, false = counter-clockwise).
 
   @returns      One of the possible TETRIS_RET_x macro values (defined in main.h).
 */
-int8_t piece_rotate_90deg( PIECE_STRUCT_T *p_piece );
+int8_t piece_rotate_90deg( PIECE_STRUCT_T *p_piece, bool clockwise );
 
 /*!
   @brief        Prints a piece in its current orientation.

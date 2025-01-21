@@ -172,7 +172,7 @@ int8_t piece_get( uint8_t type, PIECE_STRUCT_T *p_piece ){
 }
 
 
-int8_t piece_rotate_90deg( PIECE_STRUCT_T *p_piece ){
+int8_t piece_rotate_90deg( PIECE_STRUCT_T *p_piece, bool clockwise ){
   piece_shape_t temp[PIECE_LARGEST_SIZE] = { 0 };
   uint8_t temp_idx = 0;
   uint8_t piece_idx = 0;
@@ -180,11 +180,22 @@ int8_t piece_rotate_90deg( PIECE_STRUCT_T *p_piece ){
   if( p_piece == NULL )
     return TETRIS_RET_ERR_NO_PIECE;
 
-  for( uint8_t i=0; i<p_piece->order; i++ ){
-    for( uint8_t j=0; j<p_piece->order; j++ ){
-      piece_idx = (p_piece->order * i) + j;
-      temp_idx  = (p_piece->order * j) + ( p_piece->order - 1 - i );
-      temp[temp_idx] = p_piece->shape[piece_idx];
+  if( clockwise ){
+    for( uint8_t i=0; i<p_piece->order; i++ ){
+      for( uint8_t j=0; j<p_piece->order; j++ ){
+        piece_idx = (p_piece->order * i) + j;
+        temp_idx  = (p_piece->order * j) + ( p_piece->order - 1 - i );
+        temp[temp_idx] = p_piece->shape[piece_idx];
+      }
+    }
+  }
+  else{
+    for( uint8_t i=0; i<p_piece->order; i++ ){
+      for( uint8_t j=0; j<p_piece->order; j++ ){
+        piece_idx = (p_piece->order * i) + j;
+        temp_idx = (p_piece->order * (p_piece->order - 1 - j)) + i;
+        temp[temp_idx] = p_piece->shape[piece_idx];
+      }
     }
   }
 

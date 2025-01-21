@@ -99,11 +99,11 @@ int8_t move_current_piece_through_board( uint8_t direction );
 /*!
   @brief        Moves a piece through the board, if said movement is valid.
 
-  @param        none
+  @param        clockwise: which direction to rotate (true = clockwise, false = counter-clockwise).
 
   @returns      void
 */
-void rotate_current_piece_through_board( void );
+void rotate_current_piece_through_board( bool clockwise );
 
 /*!
   @brief        Fix the current piece in its current position. After that, it can no longer be moved.
